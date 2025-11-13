@@ -1,0 +1,90 @@
+# Compiled binaries and executables
+*.o
+*.out
+*.exe
+*.app
+*.so
+*.dylib
+*.dll
+a.out
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+build/
+.gradle/
+*.iml
+.idea/
+out/
+
+# C/C++
+*.obj
+*.gch
+*.pch
+*.dSYM/
+*.su
+*.slo
+*.lo
+*.la
+*.a
+*.lib
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# OCaml
+*.cmo
+*.cmi
+*.cma
+*.cmx
+*.cmxa
+*.cmxs
+*.cmt
+*.cmti
+*.annot
+*.byte
+*.native
+_build/
+.merlin
+
+# Standard ML
+*.cm
+*.ui
+*.uo
+.cm/
+
+# Build directories
+bin/
+obj/
+dist/
+build/
+
+# Editor and IDE files
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.DS_Store
+*.bak
+
+# Test outputs
+*.log
+*.tmp
+test_output/
+experiments/output/
+
+# Archive files (don't commit the submission archive)
+*.tgz
+*.zip
+*.tar.gz
+*.rar
+
+# Report drafts (only final version should be tracked)
+report_draft*.pdf
