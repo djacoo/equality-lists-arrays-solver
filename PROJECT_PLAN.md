@@ -24,12 +24,12 @@
 - [x] Understand DAG representation and equivalence classes
 
 ### 1.3 Design Decisions
-- [ ] Design overall architecture (modular components for each theory)
-- [ ] Choose data structures for DAG representation
-- [ ] Choose data structures for equivalence classes and find/union operations
-- [ ] Design input format for literal sets
-- [ ] Design output format (SAT/UNSAT with optional witness/explanation)
-- [ ] Plan optional features (forbidden list/set, non-recursive FIND)
+- [x] Design overall architecture (modular components for each theory)
+- [x] Choose data structures for DAG representation
+- [x] Choose data structures for equivalence classes and find/union operations
+- [x] Design input format for literal sets
+- [x] Design output format (SAT/UNSAT with optional witness/explanation)
+- [x] Plan optional features (forbidden list/set, non-recursive FIND)
 
 ---
 
