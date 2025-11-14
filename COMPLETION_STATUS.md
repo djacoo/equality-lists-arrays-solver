@@ -352,8 +352,31 @@ tree src/
 
 ## Current Branch Status
 
-- **Main branch:** Stable, contains merged work
-- **Develop branch:** Active development, all Phase 2.1-2.3 complete
+- **Main branch:** Phase 1 complete (stable milestone)
+- **Develop branch:** Active development, Phase 2.1-2.3 complete
 - **Feature branches:** Merged and deleted after PR completion
 
 **Git workflow:** Feature branch → PR → Review → Merge to develop → Close issue
+
+**Merge to main:** After Phase 2 completion (Conservative approach - Option A)
+
+---
+
+## Milestone Status
+
+### Milestone 1: Phase 1 - Setup & Planning ✓ CLOSED
+- **Due:** November 27, 2025
+- **Closed:** November 14, 2025
+- **Issues:** 6/6 closed
+- **Status:** Complete
+
+### Milestone 2: Phase 2 - Core Implementation 🔄 IN PROGRESS
+- **Due:** December 20, 2025
+- **Created:** November 14, 2025
+- **Progress:** Tasks 2.1-2.3 complete (3/6 subtasks)
+- **Next:** T_cons-procedure, T_A-procedure, Main solver integration
+
+### Future Milestones (Planned)
+- Milestone 3: Phase 3 - Input/Output & Interface
+- Milestone 4: Phase 4-5 - Testing & Optimizations
+- Milestone 5: Phase 6-7 - Report & Submission (Due: January 31, 2026)
