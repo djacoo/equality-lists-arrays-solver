@@ -16,12 +16,12 @@
 - [x] Set up version control workflow
 
 ### 1.2 Literature Review
-- [ ] Read Section 9.3 of Bradley & Manna (T_E-procedure, CC algorithm)
-- [ ] Read Section 9.4 of Bradley & Manna (T_cons-procedure)
-- [ ] Read Section 9.5 of Bradley & Manna (T_A-procedure)
-- [ ] Study UNION optimization (page 761 in Downey et al., page 423 in Detlef et al.)
-- [ ] Review congruence closure algorithms from other references
-- [ ] Understand DAG representation and equivalence classes
+- [x] Read Section 9.3 of Bradley & Manna (T_E-procedure, CC algorithm)
+- [x] Read Section 9.4 of Bradley & Manna (T_cons-procedure)
+- [x] Read Section 9.5 of Bradley & Manna (T_A-procedure)
+- [x] Study UNION optimization (page 761 in Downey et al., page 423 in Detlef et al.)
+- [x] Review congruence closure algorithms from other references
+- [x] Understand DAG representation and equivalence classes
 
 ### 1.3 Design Decisions
 - [ ] Design overall architecture (modular components for each theory)
