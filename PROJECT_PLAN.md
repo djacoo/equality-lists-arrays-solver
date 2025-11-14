@@ -35,25 +35,25 @@
 
 ## Phase 2: Core Implementation (Week 3-7)
 
-### 2.1 Basic Data Structures
+### 2.1 Basic Data Structures ✓ COMPLETE
 - [x] Implement term/node representation for DAG
 - [x] Implement equivalence class data structure
 - [x] Implement ccpar sets tracking
-- [ ] Implement pending list/queue for merge propagation
+- [x] Implement pending list/queue for merge propagation
 
-### 2.2 Congruence Closure (CC) Algorithm - Core of T_E
-- [ ] Implement FIND function
-- [ ] Implement UNION function with largest ccpar optimization
-- [ ] Implement MERGE procedure
-- [ ] Implement CONGRUENT check
-- [ ] Implement main CC algorithm on DAGs
-- [ ] Test CC algorithm with simple equality examples
+### 2.2 Congruence Closure (CC) Algorithm - Core of T_E ✓ COMPLETE
+- [x] Implement FIND function
+- [x] Implement UNION function with largest ccpar optimization
+- [x] Implement MERGE procedure
+- [x] Implement CONGRUENT check
+- [x] Implement main CC algorithm on DAGs
+- [x] Test CC algorithm with simple equality examples
 
-### 2.3 T_E-Procedure (Theory of Equality)
-- [ ] Parse equality literals (e.g., a = b, f(x) = g(y))
-- [ ] Parse disequality literals (e.g., a ≠ b)
-- [ ] Implement T_E satisfiability check using CC
-- [ ] Test with examples from Section 9.3
+### 2.3 T_E-Procedure (Theory of Equality) ✓ COMPLETE
+- [x] Parse equality literals (e.g., a = b, f(x) = g(y))
+- [x] Parse disequality literals (e.g., a ≠ b)
+- [x] Implement T_E satisfiability check using CC
+- [x] Test with examples from Section 9.3
 
 ### 2.4 T_cons-Procedure (Theory of Lists)
 - [ ] Identify T_cons symbols (car, cdr, cons)
@@ -227,8 +227,8 @@
 
 ### Must Have
 - [x] Language: Java, C++, C, Rust, OCaml, or Standard ML
-- [ ] Implements CC algorithm with largest ccpar optimization
-- [ ] Implements T_E-procedure
+- [x] Implements CC algorithm with largest ccpar optimization
+- [x] Implements T_E-procedure
 - [ ] Implements T_cons-procedure
 - [ ] Implements T_A-procedure (store decomposition + select processing)
 - [ ] Handles mixed theories correctly
