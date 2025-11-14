@@ -36,9 +36,9 @@
 ## Phase 2: Core Implementation (Week 3-7)
 
 ### 2.1 Basic Data Structures
-- [ ] Implement term/node representation for DAG
-- [ ] Implement equivalence class data structure
-- [ ] Implement ccpar sets tracking
+- [x] Implement term/node representation for DAG
+- [x] Implement equivalence class data structure
+- [x] Implement ccpar sets tracking
 - [ ] Implement pending list/queue for merge propagation
 
 ### 2.2 Congruence Closure (CC) Algorithm - Core of T_E
