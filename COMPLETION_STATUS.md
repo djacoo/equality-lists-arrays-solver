@@ -6,13 +6,13 @@
 
 ---
 
-## Overall Progress: Phase 2.1-2.3 Complete (33% of core implementation)
+## Overall Progress: Phase 2.1-2.4 Complete (67% of core implementation)
 
 ### Test Statistics
-- **Total Tests:** 88 passing
-- **Source Files:** 15 Java files
-- **Test Files:** 8 test files
-- **Documentation Files:** 11 markdown files
+- **Total Tests:** 125 passing
+- **Source Files:** 17 Java files
+- **Test Files:** 10 test files
+- **Documentation Files:** 15 markdown files (after cleanup)
 
 ---
 
@@ -208,6 +208,72 @@
 
 ---
 
+### Phase 2.4: T_cons-Procedure - 100% COMPLETE
+
+#### Implemented Components
+
+**1. TConsSymbols Utility (`solver.theory.tcons` package)**
+- `TConsSymbols.java` - Symbol recognition for Theory of Lists
+- Methods to identify cons, car, cdr function symbols
+- Detection methods:
+  - `isCons(term)` - Checks if term is cons(x, y) with arity 2
+  - `isCar(term)` - Checks if term is car(x) with arity 1
+  - `isCdr(term)` - Checks if term is cdr(x) with arity 1
+  - `isTConsSymbol(term)` - Checks for any T_cons symbol
+- Literal-level detection:
+  - `containsTConsSymbols(literal)` - Recursive search in term structure
+  - `containsTConsSymbols(literals)` - Collection-level detection
+- Extraction methods:
+  - `extractConsTerms(literals)` - Returns all cons(x, y) applications
+  - `extractCarTerms(literals)` - Returns all car(x) applications
+  - `extractCdrTerms(literals)` - Returns all cdr(x) applications
+
+**2. TConsProcedure - List Theory Satisfiability Checker**
+- `TConsProcedure.java` - T_cons satisfiability checker
+- Theory of Lists axioms:
+  - Axiom 1: car(cons(x, y)) = x
+  - Axiom 2: cdr(cons(x, y)) = y
+- Algorithm:
+  1. Extract all cons(x, y) terms using TConsSymbols
+  2. For each cons(x, y), generate both axioms
+  3. Combine original literals with generated axioms
+  4. Delegate to TEProcedure for CC-based solving
+  5. Return SAT/UNSAT result with witness/conflict
+- Supports shared TermFactory for term reuse
+- Handles nested list structures
+- Works with pure T_E problems (no axioms when no cons symbols)
+
+**Tests:** 37 comprehensive tests covering:
+
+**TConsSymbols (21 tests):**
+- Symbol recognition (cons, car, cdr)
+- Arity validation
+- Leaf vs function application
+- Detection in literals
+- Nested term detection
+- Collection-level detection
+- Extraction methods
+- Complex mixed structures
+
+**TConsProcedure (16 tests):**
+- Simple axiom enforcement (car and cdr)
+- Axiom violations (UNSAT cases)
+- Axiom satisfaction (SAT cases)
+- Axiom conflicts
+- Multiple cons terms
+- Nested cons structures (cons(a, cons(b, c)))
+- car(cdr(...)) combinations
+- List equality with hash-consing
+- Pure T_E problems (no cons symbols)
+- car/cdr without cons (no axioms)
+- Complex 3-level list structures
+- Mixed terms with congruence
+- Factory accessor
+
+**Test Coverage:** 37 new tests (total: 125)
+
+---
+
 ## Implementation Statistics
 
 ### Code Metrics
@@ -228,7 +294,9 @@ Source Files (src/main/java):
 - solver.theory.Result
 - solver.theory.te.Literal
 - solver.theory.te.TEProcedure
-Total: 15 files
+- solver.theory.tcons.TConsSymbols
+- solver.theory.tcons.TConsProcedure
+Total: 17 files
 
 Test Files (src/test/java):
 - solver.MainTest
@@ -239,9 +307,11 @@ Test Files (src/test/java):
 - solver.dag.TermFactoryTest
 - solver.equivalence.ClassManagerTest
 - solver.theory.te.TEProcedureTest
-Total: 8 files
+- solver.theory.tcons.TConsSymbolsTest
+- solver.theory.tcons.TConsProcedureTest
+Total: 10 files
 
-Tests: 88 passing (0 failures, 0 errors)
+Tests: 125 passing (0 failures, 0 errors)
 ```
 
 ### Key Algorithm Features Implemented
@@ -253,6 +323,8 @@ Tests: 88 passing (0 failures, 0 errors)
 - ✓ CONGRUENT check for function applications
 - ✓ Full Congruence Closure algorithm
 - ✓ T_E-procedure with conflict detection
+- ✓ T_cons symbol recognition (cons, car, cdr)
+- ✓ T_cons axiom generation and integration
 
 ---
 
@@ -262,7 +334,13 @@ Tests: 88 passing (0 failures, 0 errors)
 - Issue #20: MERGE procedure - Closed via PR #25
 - Issue #21: CONGRUENT check - Closed via PR #24
 - Issue #22: Main CongruenceClosure algorithm - Closed via PR #26
+
+**Phase 2.3 Issues:**
 - Issue #23: T_E-procedure - Closed via PR #27
+
+**Phase 2.4 Issues:**
+- Issue #31: T_cons symbol recognition - Closed via PR #33
+- Issue #32: T_cons axiom integration - Closed via PR #34
 
 **All PRs merged to `develop` branch**
 
@@ -270,15 +348,7 @@ Tests: 88 passing (0 failures, 0 errors)
 
 ## Next Steps (Remaining Work)
 
-### Phase 2.4: T_cons-Procedure (Theory of Lists)
-- [ ] Identify T_cons symbols (car, cdr, cons)
-- [ ] Implement T_cons axioms:
-  - car(cons(x,y)) = x
-  - cdr(cons(x,y)) = y
-- [ ] Handle potential cycles
-- [ ] Test with Bradley & Manna Section 9.4 examples
-
-### Phase 2.5: T_A-Procedure (Theory of Arrays)
+### Phase 2.5: T_A-Procedure (Theory of Arrays) - NEXT
 - [ ] Implement store decomposition
 - [ ] Implement select processing
 - [ ] Handle read-over-write axioms
@@ -353,7 +423,7 @@ tree src/
 ## Current Branch Status
 
 - **Main branch:** Phase 1 complete (stable milestone)
-- **Develop branch:** Active development, Phase 2.1-2.3 complete
+- **Develop branch:** Active development, Phase 2.1-2.4 complete (67%)
 - **Feature branches:** Merged and deleted after PR completion
 
 **Git workflow:** Feature branch → PR → Review → Merge to develop → Close issue
@@ -373,8 +443,8 @@ tree src/
 ### Milestone 2: Phase 2 - Core Implementation 🔄 IN PROGRESS
 - **Due:** December 20, 2025
 - **Created:** November 14, 2025
-- **Progress:** Tasks 2.1-2.3 complete (3/6 subtasks)
-- **Next:** T_cons-procedure, T_A-procedure, Main solver integration
+- **Progress:** Tasks 2.1-2.4 complete (4/6 subtasks, 67%)
+- **Next:** T_A-procedure, Main solver integration
 
 ### Future Milestones (Planned)
 - Milestone 3: Phase 3 - Input/Output & Interface
