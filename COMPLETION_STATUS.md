@@ -1,17 +1,17 @@
 # Project Completion Status
 
-**Last Updated:** November 14, 2025
+**Last Updated:** November 15, 2025
 **Project:** Solver for the Union of Theories of Equality, Lists, and Arrays
 **Due Date:** January 31, 2026
 
 ---
 
-## Overall Progress: Phase 2.1-2.4 Complete (67% of core implementation)
+## Overall Progress: Phase 2.1-2.5 Complete (83% of core implementation)
 
 ### Test Statistics
-- **Total Tests:** 125 passing
-- **Source Files:** 17 Java files
-- **Test Files:** 10 test files
+- **Total Tests:** 165 passing
+- **Source Files:** 19 Java files
+- **Test Files:** 12 test files
 - **Documentation Files:** 15 markdown files (after cleanup)
 
 ---
@@ -274,6 +274,71 @@
 
 ---
 
+### Phase 2.5: T_A-Procedure - 100% COMPLETE
+
+#### Implemented Components
+
+**1. TArraySymbols Utility (`solver.theory.tarray` package)**
+- `TArraySymbols.java` - Symbol recognition for Theory of Arrays
+- Methods to identify select and store function symbols
+- Detection methods:
+  - `isSelect(term)` - Checks if term is select(a, i) with arity 2
+  - `isStore(term)` - Checks if term is store(a, i, v) with arity 3
+  - `isTArraySymbol(term)` - Checks for any T_A symbol
+  - `containsTArraySymbols(literal)` - Recursive search in term structure
+  - `containsTArraySymbols(literals)` - Collection-level detection
+- Extraction methods:
+  - `extractSelectTerms(literals)` - Returns all select applications
+  - `extractStoreTerms(literals)` - Returns all store applications
+
+**2. TArrayProcedure - Array Theory Satisfiability Checker**
+- `TArrayProcedure.java` - T_A satisfiability checker with store decomposition
+- Theory of Arrays read-over-write axioms:
+  - Axiom 1: select(store(a, i, v), i) = v (reading stored index gives stored value)
+  - Axiom 2: i ≠ j → select(store(a, i, v), j) = select(a, j) (different index gives original value)
+- Algorithm:
+  1. Extract all store(a, i, v) terms using TArraySymbols
+  2. For each store and each select operation on it, generate two subproblems:
+     - Subproblem 1: i = j ∧ select(store(a,i,v), j) = v
+     - Subproblem 2: i ≠ j ∧ select(store(a,i,v), j) = select(a, j)
+  3. Recursively check each subproblem using backtracking
+  4. Delegate to TConsProcedure for base case (no stores)
+  5. Return SAT if any subproblem is SAT, otherwise UNSAT
+- Supports shared TermFactory for term reuse
+- Handles nested store structures
+- Works with pure T_E/T_cons problems (delegates when no store symbols)
+
+**Tests:** 40 comprehensive tests covering:
+
+**TArraySymbols (23 tests):**
+- Symbol recognition (select, store)
+- Arity validation (select: 2, store: 3)
+- Leaf vs function application
+- Detection in literals
+- Nested term detection
+- Collection-level detection
+- Extraction methods
+- Read-over-write patterns
+- Multiple stores on same array
+
+**TArrayProcedure (17 tests):**
+- Pure equality (no arrays)
+- Read-over-write same index (SAT and UNSAT)
+- Read-over-write different index (SAT and UNSAT)
+- Simple store equality
+- No select operations
+- Multiple nested stores
+- Select on non-store arrays
+- Complex array expressions
+- Mixed theories (arrays + lists)
+- Store preservation of other indices
+- Conflicting store values
+- Default constructor
+
+**Test Coverage:** 40 new tests (total: 165)
+
+---
+
 ## Implementation Statistics
 
 ### Code Metrics
@@ -296,7 +361,9 @@ Source Files (src/main/java):
 - solver.theory.te.TEProcedure
 - solver.theory.tcons.TConsSymbols
 - solver.theory.tcons.TConsProcedure
-Total: 17 files
+- solver.theory.tarray.TArraySymbols
+- solver.theory.tarray.TArrayProcedure
+Total: 19 files
 
 Test Files (src/test/java):
 - solver.MainTest
@@ -309,9 +376,11 @@ Test Files (src/test/java):
 - solver.theory.te.TEProcedureTest
 - solver.theory.tcons.TConsSymbolsTest
 - solver.theory.tcons.TConsProcedureTest
-Total: 10 files
+- solver.theory.tarray.TArraySymbolsTest
+- solver.theory.tarray.TArrayProcedureTest
+Total: 12 files
 
-Tests: 125 passing (0 failures, 0 errors)
+Tests: 165 passing (0 failures, 0 errors)
 ```
 
 ### Key Algorithm Features Implemented
@@ -325,6 +394,8 @@ Tests: 125 passing (0 failures, 0 errors)
 - ✓ T_E-procedure with conflict detection
 - ✓ T_cons symbol recognition (cons, car, cdr)
 - ✓ T_cons axiom generation and integration
+- ✓ T_A symbol recognition (select, store)
+- ✓ T_A store decomposition with read-over-write axioms
 
 ---
 
@@ -342,20 +413,20 @@ Tests: 125 passing (0 failures, 0 errors)
 - Issue #31: T_cons symbol recognition - Closed via PR #33
 - Issue #32: T_cons axiom integration - Closed via PR #34
 
+**Phase 2.5 Issues:**
+- Issue #36: T_A symbol recognition - Closed via PR #39
+- Issue #37: Store decomposition logic - Closed via PR #40
+- Issue #38: T_A-procedure main solver - Closed via PR #40
+
 **All PRs merged to `develop` branch**
 
 ---
 
 ## Next Steps (Remaining Work)
 
-### Phase 2.5: T_A-Procedure (Theory of Arrays) - NEXT
-- [ ] Implement store decomposition
-- [ ] Implement select processing
-- [ ] Handle read-over-write axioms
-- [ ] Test with Bradley & Manna Section 9.5 examples
-
-### Phase 2.6: Main Solver Integration
-- [ ] Orchestrate all theory procedures
+### Phase 2.6: Main Solver Integration - NEXT
+- [ ] Orchestrate all theory procedures (T_E, T_cons, T_A)
+- [ ] Implement theory detection and routing
 - [ ] Implement result aggregation
 - [ ] Test with mixed theory examples
 
@@ -404,15 +475,15 @@ Tests: 125 passing (0 failures, 0 errors)
 mvn clean test
 
 # Expected output
-Tests run: 88, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 165, Failures: 0, Errors: 0, Skipped: 0
 
 # Count source files
 find src/main/java -name "*.java" | wc -l
-# Output: 15
+# Output: 19
 
 # Count test files
 find src/test/java -name "*.java" | wc -l
-# Output: 8
+# Output: 12
 
 # View project structure
 tree src/
@@ -423,7 +494,7 @@ tree src/
 ## Current Branch Status
 
 - **Main branch:** Phase 1 complete (stable milestone)
-- **Develop branch:** Active development, Phase 2.1-2.4 complete (67%)
+- **Develop branch:** Active development, Phase 2.1-2.5 complete (83%)
 - **Feature branches:** Merged and deleted after PR completion
 
 **Git workflow:** Feature branch → PR → Review → Merge to develop → Close issue
@@ -443,8 +514,8 @@ tree src/
 ### Milestone 2: Phase 2 - Core Implementation 🔄 IN PROGRESS
 - **Due:** December 20, 2025
 - **Created:** November 14, 2025
-- **Progress:** Tasks 2.1-2.4 complete (4/6 subtasks, 67%)
-- **Next:** T_A-procedure, Main solver integration
+- **Progress:** Tasks 2.1-2.5 complete (5/6 subtasks, 83%)
+- **Next:** Main solver integration (Phase 2.6)
 
 ### Future Milestones (Planned)
 - Milestone 3: Phase 3 - Input/Output & Interface
