@@ -55,13 +55,13 @@
 - [x] Implement T_E satisfiability check using CC
 - [x] Test with examples from Section 9.3
 
-### 2.4 T_cons-Procedure (Theory of Lists)
-- [ ] Identify T_cons symbols (car, cdr, cons)
-- [ ] Implement T_cons axioms integration into CC
-  - [ ] Axiom: car(cons(x,y)) = x
-  - [ ] Axiom: cdr(cons(x,y)) = y
-  - [ ] Handle potential cycles
-- [ ] Test with list examples from Section 9.4
+### 2.4 T_cons-Procedure (Theory of Lists) ✓ COMPLETE
+- [x] Identify T_cons symbols (car, cdr, cons)
+- [x] Implement T_cons axioms integration into CC
+  - [x] Axiom: car(cons(x,y)) = x
+  - [x] Axiom: cdr(cons(x,y)) = y
+  - [x] Handle potential cycles
+- [x] Test with list examples from Section 9.4
 
 ### 2.5 T_A-Procedure (Theory of Arrays)
 - [ ] Identify array symbols (select, store)
@@ -229,7 +229,7 @@
 - [x] Language: Java, C++, C, Rust, OCaml, or Standard ML
 - [x] Implements CC algorithm with largest ccpar optimization
 - [x] Implements T_E-procedure
-- [ ] Implements T_cons-procedure
+- [x] Implements T_cons-procedure
 - [ ] Implements T_A-procedure (store decomposition + select processing)
 - [ ] Handles mixed theories correctly
 - [ ] stdin/stdout or simple GUI interface
