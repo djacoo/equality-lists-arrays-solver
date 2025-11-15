@@ -230,8 +230,8 @@
 - [x] Implements CC algorithm with largest ccpar optimization
 - [x] Implements T_E-procedure
 - [x] Implements T_cons-procedure
-- [ ] Implements T_A-procedure (store decomposition + select processing)
-- [ ] Handles mixed theories correctly
+- [x] Implements T_A-procedure (store decomposition + select processing)
+- [x] Handles mixed theories correctly
 - [ ] stdin/stdout or simple GUI interface
 - [ ] Comprehensive test suite from books/papers
 - [ ] Report (max 6 pages, 11pt, NO AI generated)
