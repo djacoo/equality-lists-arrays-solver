@@ -72,14 +72,14 @@
 - [x] Handle multiple store operations (recursive decomposition)
 - [x] Test with array examples from Section 9.5
 
-### 2.6 Main Solver Integration
-- [ ] Implement main solver loop
-  1. Check for store symbols → decompose into subproblems
-  2. For each subproblem, process select symbols
-  3. For each subproblem, check for T_cons symbols
-  4. Apply T_cons-procedure or T_E-procedure accordingly
-- [ ] Implement result aggregation (SAT if any subproblem is SAT)
-- [ ] Test with mixed theory examples
+### 2.6 Main Solver Integration ✓ COMPLETE
+- [x] Implement UnifiedSolver as main entry point
+- [x] Implement automatic theory detection (T_A, T_cons, T_E)
+- [x] Implement intelligent routing to appropriate procedures
+- [x] Provide clean public API (checkSat, isSatisfiable)
+- [x] Test with pure theories (T_E, T_cons, T_A)
+- [x] Test with mixed theory examples
+- [x] Test with all three theories combined
 
 ---
 
