@@ -63,14 +63,14 @@
   - [x] Handle potential cycles
 - [x] Test with list examples from Section 9.4
 
-### 2.5 T_A-Procedure (Theory of Arrays)
-- [ ] Identify array symbols (select, store)
-- [ ] Implement store decomposition (creates two subproblems per store)
-  - [ ] Subproblem 1: i = j ∧ select(store(a,i,v),j) = v
-  - [ ] Subproblem 2: i ≠ j ∧ select(store(a,i,v),j) = select(a,j)
-- [ ] Implement select processing (read-over-write axioms)
-- [ ] Handle multiple store operations (recursive decomposition)
-- [ ] Test with array examples from Section 9.5
+### 2.5 T_A-Procedure (Theory of Arrays) ✓ COMPLETE
+- [x] Identify array symbols (select, store)
+- [x] Implement store decomposition (creates two subproblems per store)
+  - [x] Subproblem 1: i = j ∧ select(store(a,i,v),j) = v
+  - [x] Subproblem 2: i ≠ j ∧ select(store(a,i,v),j) = select(a,j)
+- [x] Implement select processing (read-over-write axioms)
+- [x] Handle multiple store operations (recursive decomposition)
+- [x] Test with array examples from Section 9.5
 
 ### 2.6 Main Solver Integration
 - [ ] Implement main solver loop
