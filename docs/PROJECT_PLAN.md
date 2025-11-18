@@ -85,20 +85,20 @@
 
 ## Phase 3: Input/Output & Interface (Week 7-8)
 
-### 3.1 Input Parser
-- [ ] Design input language/format for literal sets
-- [ ] Implement lexer for tokenization
-- [ ] Implement parser for expressions
-- [ ] Handle free predicate symbols transformation
-- [ ] Handle free variables
-- [ ] Support reading from files (stdin or file argument)
-- [ ] Add error handling for malformed input
+### 3.1 Input Parser ✓ COMPLETE
+- [x] Design input language/format for literal sets
+- [x] Implement lexer for tokenization (`solver.parser.Lexer`)
+- [x] Implement parser for expressions (`solver.parser.Parser`)
+- [x] Handle free predicate symbols transformation (`solver.parser.PredicateTransformer`)
+- [x] Handle free variables (all simple identifiers treated as variables)
+- [x] Support reading from files (stdin or file argument) (`solver.parser.InputReader`)
+- [x] Add error handling for malformed input (LexerException, ParseException with line/column)
 
-### 3.2 Output Formatter
-- [ ] Implement SAT/UNSAT output
-- [ ] Optional: Show equivalence classes for SAT cases
-- [ ] Optional: Show conflict explanation for UNSAT cases
-- [ ] Add timing/statistics output
+### 3.2 Output Formatter ✓ COMPLETE
+- [x] Implement SAT/UNSAT output
+- [x] Optional: Show equivalence classes for SAT cases
+- [x] Optional: Show conflict explanation for UNSAT cases
+- [x] Add timing/statistics output
 
 ### 3.3 Optional: SMT-LIB Parser
 - [ ] Study SMT-LIB format (QF-UF benchmarks)
@@ -232,7 +232,7 @@
 - [x] Implements T_cons-procedure
 - [x] Implements T_A-procedure (store decomposition + select processing)
 - [x] Handles mixed theories correctly
-- [ ] stdin/stdout or simple GUI interface
+- [x] stdin/stdout interface with file support and help system
 - [ ] Comprehensive test suite from books/papers
 - [ ] Report (max 6 pages, 11pt, NO AI generated)
 - [ ] Archive with source, tests, outputs, README, executable

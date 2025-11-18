@@ -1,0 +1,6 @@
+# Test case for T_A (Theory of Arrays) - SAT
+# Source: Bradley & Manna, Section 9.5
+# Expected: SAT (read-over-write with same index)
+
+# Store and select with same index
+select(store(a, i, v), i) = v

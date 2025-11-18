@@ -29,7 +29,7 @@ public class TConsSymbols {
      * @return true if term is cons(x, y)
      */
     public static boolean isCons(Term term) {
-        if (term.isLeaf()) {
+        if (term == null || term.isLeaf()) {
             return false;
         }
         FunctionApp f = (FunctionApp) term;
@@ -43,7 +43,7 @@ public class TConsSymbols {
      * @return true if term is car(x)
      */
     public static boolean isCar(Term term) {
-        if (term.isLeaf()) {
+        if (term == null || term.isLeaf()) {
             return false;
         }
         FunctionApp f = (FunctionApp) term;
@@ -57,7 +57,7 @@ public class TConsSymbols {
      * @return true if term is cdr(x)
      */
     public static boolean isCdr(Term term) {
-        if (term.isLeaf()) {
+        if (term == null || term.isLeaf()) {
             return false;
         }
         FunctionApp f = (FunctionApp) term;
@@ -92,6 +92,10 @@ public class TConsSymbols {
      * @return true if term or any subterm is a T_cons symbol
      */
     private static boolean containsTConsSymbol(Term term) {
+        if (term == null) {
+            return false;
+        }
+
         if (isTConsSymbol(term)) {
             return true;
         }
@@ -144,6 +148,10 @@ public class TConsSymbols {
      * Recursively extracts cons terms from a term.
      */
     private static void extractConsTermsFromTerm(Term term, Set<FunctionApp> consTerms) {
+        if (term == null) {
+            return;
+        }
+
         if (isCons(term)) {
             consTerms.add((FunctionApp) term);
         }
@@ -177,6 +185,10 @@ public class TConsSymbols {
      * Recursively extracts car terms from a term.
      */
     private static void extractCarTermsFromTerm(Term term, Set<FunctionApp> carTerms) {
+        if (term == null) {
+            return;
+        }
+
         if (isCar(term)) {
             carTerms.add((FunctionApp) term);
         }
@@ -210,6 +222,10 @@ public class TConsSymbols {
      * Recursively extracts cdr terms from a term.
      */
     private static void extractCdrTermsFromTerm(Term term, Set<FunctionApp> cdrTerms) {
+        if (term == null) {
+            return;
+        }
+
         if (isCdr(term)) {
             cdrTerms.add((FunctionApp) term);
         }

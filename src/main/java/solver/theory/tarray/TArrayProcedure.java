@@ -21,15 +21,22 @@ import java.util.Set;
  * - store(a, i, v): Returns a new array identical to a except at index i, which has value v
  *
  * The procedure handles array read-over-write axioms:
- * 1. select(store(a, i, v), i) = v (reading the stored index gives the stored value)
- * 2. i ≠ j → select(store(a, i, v), j) = select(a, j) (reading different index gives original value)
+ * 1. i = j → select(store(a, i, v), j) = v         (read-over-write 1)
+ * 2. i ≠ j → select(store(a, i, v), j) = select(a, j)  (read-over-write 2)
  *
- * Algorithm:
- * 1. If no store symbols: delegate to TConsProcedure/TEProcedure
- * 2. If store symbols exist: decompose into subproblems using read-over-write axioms
- * 3. For each store term, create two subproblems (one assuming i=j, one assuming i≠j)
- * 4. Check each subproblem recursively
- * 5. Return SAT if any subproblem is SAT, otherwise UNSAT
+ * Algorithm (Bradley & Manna Section 9.5, page 263-264):
+ *
+ * Step 1: If F contains no write/store terms:
+ *   - Replace each read term select(a, i) with f_a(i) (fresh uninterpreted function)
+ *   - Delegate to T_E-procedure
+ *
+ * Step 2: If F contains write/store terms:
+ *   - Select some read-over-write term select(store(a, i, v), j)
+ *   - Branch on two cases:
+ *     Case 1: Replace F[select(store(a,i,v),j)] with F[v] ∧ i = j (axiom 1)
+ *     Case 2: Replace F[select(store(a,i,v),j)] with F[select(a,j)] ∧ i ≠ j (axiom 2)
+ *   - Recursively check both branches
+ *   - Return SAT if any branch is SAT, else UNSAT
  *
  * Reference: Bradley & Manna Section 9.5
  */
@@ -67,128 +74,236 @@ public class TArrayProcedure {
     /**
      * Checks satisfiability of a collection of literals in the Theory of Arrays.
      *
+     * Implements the Bradley-Manna T_A decision procedure (Section 9.5).
+     *
      * @param literals The literals to check
      * @return SAT with witness if satisfiable, UNSAT with conflict otherwise
      */
     public Result check(Collection<Literal> literals) {
-        // Extract store terms from literals
+        // Step 1: Check if there are any store terms
         Set<FunctionApp> storeTerms = TArraySymbols.extractStoreTerms(literals);
 
-        // If no store terms, delegate to T_cons/T_E procedure
         if (storeTerms.isEmpty()) {
+            // No store terms: Step 1 of Bradley-Manna algorithm
+            // Replace each select(a, i) with f_a(i) and delegate to T_E
+            return checkWithoutStores(literals);
+        }
+
+        // Step 2: Store terms exist - apply read-over-write axioms
+        // Find a read-over-write term and branch on it
+        return applyReadOverWrite(new ArrayList<>(literals));
+    }
+
+    /**
+     * Step 1 of Bradley-Manna algorithm: No store terms exist.
+     *
+     * Replace each select(a, i) with f_a(i) (fresh uninterpreted function)
+     * and delegate to T_E procedure.
+     *
+     * Note: For simplicity, we treat select as uninterpreted and delegate to T_cons
+     * which in turn delegates to T_E. This is sound because without store terms,
+     * the array axioms don't apply.
+     *
+     * @param literals The literals without store terms
+     * @return Result from T_E procedure
+     */
+    private Result checkWithoutStores(Collection<Literal> literals) {
+        // No store terms - select operations are uninterpreted
+        // Delegate to T_cons (which handles T_E)
+        return tconsProcedure.checkSat(literals);
+    }
+
+    /**
+     * Step 2 of Bradley-Manna algorithm: Apply read-over-write axioms.
+     *
+     * Find a read-over-write term select(store(a, i, v), j) and branch:
+     * - Case 1: i = j, replace with v
+     * - Case 2: i ≠ j, replace with select(a, j)
+     *
+     * @param literals The current literals (mutable list)
+     * @return SAT if any branch is SAT, UNSAT if all branches are UNSAT
+     */
+    private Result applyReadOverWrite(List<Literal> literals) {
+        // Find a read-over-write term: select(store(...), j)
+        ReadOverWriteTerm rowTerm = findReadOverWriteTerm(literals);
+
+        if (rowTerm == null) {
+            // No more read-over-write terms - delegate to T_cons/T_E
             return tconsProcedure.checkSat(literals);
         }
 
-        // For each store term, we need to decompose into subproblems
-        // We'll use a simpler approach: try all possible assignments
-        return decomposeStores(literals, new ArrayList<>(storeTerms), 0);
+        // Extract components: select(store(a, i, v), j)
+        Term a = rowTerm.baseArray;
+        Term i = rowTerm.storeIndex;
+        Term v = rowTerm.storedValue;
+        Term j = rowTerm.selectIndex;
+        FunctionApp selectStoreTerm = rowTerm.selectStoreApp;
+
+        // Branch 1: i = j, replace select(store(a,i,v),j) with v
+        List<Literal> branch1 = new ArrayList<>();
+        branch1.add(Literal.equality(i, j));
+        for (Literal lit : literals) {
+            branch1.add(replaceTerm(lit, selectStoreTerm, v));
+        }
+
+        Result result1 = applyReadOverWrite(branch1);
+        if (result1.isSat()) {
+            return result1;  // Found satisfying branch
+        }
+
+        // Branch 2: i ≠ j, replace select(store(a,i,v),j) with select(a,j)
+        FunctionApp selectA = factory.createFunctionApp("select", a, j);
+        List<Literal> branch2 = new ArrayList<>();
+        branch2.add(Literal.disequality(i, j));
+        for (Literal lit : literals) {
+            branch2.add(replaceTerm(lit, selectStoreTerm, selectA));
+        }
+
+        Result result2 = applyReadOverWrite(branch2);
+        if (result2.isSat()) {
+            return result2;  // Found satisfying branch
+        }
+
+        // Both branches UNSAT
+        return Result.unsat("Both read-over-write branches are UNSAT");
     }
 
     /**
-     * Recursively decomposes store terms into subproblems.
-     *
-     * For each store(a, i, v), we create subproblems by considering all select operations
-     * that might read from this store.
-     *
-     * @param originalLiterals The original literals
-     * @param storeTerms List of all store terms
-     * @param index Current index in storeTerms list
-     * @return SAT if any subproblem is SAT, UNSAT otherwise
+     * Helper class to hold components of a read-over-write term.
      */
-    private Result decomposeStores(Collection<Literal> originalLiterals,
-                                   List<FunctionApp> storeTerms,
-                                   int index) {
-        // Base case: all stores processed, delegate to T_cons/T_E
-        if (index >= storeTerms.size()) {
-            return tconsProcedure.checkSat(originalLiterals);
+    private static class ReadOverWriteTerm {
+        final FunctionApp selectStoreApp;  // The full select(store(...), j) term
+        final Term baseArray;               // a in store(a, i, v)
+        final Term storeIndex;              // i in store(a, i, v)
+        final Term storedValue;             // v in store(a, i, v)
+        final Term selectIndex;             // j in select(..., j)
+
+        ReadOverWriteTerm(FunctionApp selectStoreApp, Term baseArray,
+                         Term storeIndex, Term storedValue, Term selectIndex) {
+            this.selectStoreApp = selectStoreApp;
+            this.baseArray = baseArray;
+            this.storeIndex = storeIndex;
+            this.storedValue = storedValue;
+            this.selectIndex = selectIndex;
         }
-
-        // Get current store term: store(a, i, v)
-        FunctionApp store = storeTerms.get(index);
-        Term a = store.getArguments().get(0);  // base array
-        Term i = store.getArguments().get(1);  // index
-        Term v = store.getArguments().get(2);  // value
-
-        // Find all select operations on this store
-        Set<Term> selectIndices = findSelectIndices(originalLiterals, store);
-
-        // If no selects on this store, just continue to next store
-        if (selectIndices.isEmpty()) {
-            return decomposeStores(originalLiterals, storeTerms, index + 1);
-        }
-
-        // For each select index j, create two subproblems:
-        // 1. i = j ∧ select(store(a,i,v), j) = v
-        // 2. i ≠ j ∧ select(store(a,i,v), j) = select(a, j)
-        for (Term j : selectIndices) {
-            // Subproblem 1: i = j case
-            List<Literal> subproblem1 = new ArrayList<>(originalLiterals);
-            subproblem1.add(Literal.equality(i, j));
-            FunctionApp selectStore = factory.createFunctionApp("select", store, j);
-            subproblem1.add(Literal.equality(selectStore, v));
-
-            Result result1 = decomposeStores(subproblem1, storeTerms, index + 1);
-            if (result1.isSat()) {
-                return result1;
-            }
-
-            // Subproblem 2: i ≠ j case
-            List<Literal> subproblem2 = new ArrayList<>(originalLiterals);
-            subproblem2.add(Literal.disequality(i, j));
-            FunctionApp selectA = factory.createFunctionApp("select", a, j);
-            subproblem2.add(Literal.equality(selectStore, selectA));
-
-            Result result2 = decomposeStores(subproblem2, storeTerms, index + 1);
-            if (result2.isSat()) {
-                return result2;
-            }
-        }
-
-        // If we get here, both subproblems are UNSAT
-        return Result.unsat();
     }
 
     /**
-     * Finds all indices j where select(..., j) is applied to a store term.
+     * Finds the first read-over-write term in the literals.
+     *
+     * A read-over-write term has the form: select(store(a, i, v), j)
      *
      * @param literals The literals to search
-     * @param storeTerm The store term to find selects for
-     * @return Set of index terms used in select operations
+     * @return ReadOverWriteTerm if found, null otherwise
      */
-    private Set<Term> findSelectIndices(Collection<Literal> literals, FunctionApp storeTerm) {
-        Set<Term> indices = new HashSet<>();
-
+    private ReadOverWriteTerm findReadOverWriteTerm(List<Literal> literals) {
         for (Literal lit : literals) {
-            findSelectIndicesInTerm(lit.getLeft(), storeTerm, indices);
-            findSelectIndicesInTerm(lit.getRight(), storeTerm, indices);
-        }
+            ReadOverWriteTerm rowTerm = findReadOverWriteInTerm(lit.getLeft());
+            if (rowTerm != null) return rowTerm;
 
-        return indices;
+            rowTerm = findReadOverWriteInTerm(lit.getRight());
+            if (rowTerm != null) return rowTerm;
+        }
+        return null;
     }
 
     /**
-     * Recursively finds select indices in a term.
+     * Recursively searches a term for read-over-write patterns.
+     *
+     * @param term The term to search
+     * @return ReadOverWriteTerm if found, null otherwise
      */
-    private void findSelectIndicesInTerm(Term term, FunctionApp storeTerm, Set<Term> indices) {
+    private ReadOverWriteTerm findReadOverWriteInTerm(Term term) {
         if (TArraySymbols.isSelect(term)) {
             FunctionApp select = (FunctionApp) term;
             Term array = select.getArguments().get(0);
-            Term index = select.getArguments().get(1);
+            Term j = select.getArguments().get(1);
 
-            // Check if this select is on our store term
-            if (array.equals(storeTerm)) {
-                indices.add(index);
+            // Check if array is a store term
+            if (TArraySymbols.isStore(array)) {
+                FunctionApp store = (FunctionApp) array;
+                Term a = store.getArguments().get(0);  // base array
+                Term i = store.getArguments().get(1);  // store index
+                Term v = store.getArguments().get(2);  // stored value
+
+                return new ReadOverWriteTerm(select, a, i, v, j);
             }
 
-            // Also recurse into arguments
-            for (Term arg : select.getArguments()) {
-                findSelectIndicesInTerm(arg, storeTerm, indices);
-            }
+            // Recurse into array argument (might be nested select)
+            ReadOverWriteTerm result = findReadOverWriteInTerm(array);
+            if (result != null) return result;
+
+            // Recurse into index argument
+            result = findReadOverWriteInTerm(j);
+            if (result != null) return result;
         } else if (!term.isLeaf()) {
+            // Recurse into function arguments
             FunctionApp f = (FunctionApp) term;
             for (Term arg : f.getArguments()) {
-                findSelectIndicesInTerm(arg, storeTerm, indices);
+                ReadOverWriteTerm result = findReadOverWriteInTerm(arg);
+                if (result != null) return result;
             }
         }
+
+        return null;
+    }
+
+    /**
+     * Replaces all occurrences of oldTerm with newTerm in a literal.
+     *
+     * @param literal The literal to transform
+     * @param oldTerm The term to replace
+     * @param newTerm The replacement term
+     * @return A new literal with replacements applied
+     */
+    private Literal replaceTerm(Literal literal, Term oldTerm, Term newTerm) {
+        Term newLeft = replaceInTerm(literal.getLeft(), oldTerm, newTerm);
+        Term newRight = replaceInTerm(literal.getRight(), oldTerm, newTerm);
+
+        if (literal.isEquality()) {
+            return Literal.equality(newLeft, newRight);
+        } else {
+            return Literal.disequality(newLeft, newRight);
+        }
+    }
+
+    /**
+     * Recursively replaces oldTerm with newTerm in a term.
+     *
+     * @param term The term to transform
+     * @param oldTerm The term to replace
+     * @param newTerm The replacement term
+     * @return The transformed term
+     */
+    private Term replaceInTerm(Term term, Term oldTerm, Term newTerm) {
+        // Check for exact match (using equality based on hash-consing)
+        if (term.equals(oldTerm)) {
+            return newTerm;
+        }
+
+        // If it's a leaf, no replacement needed
+        if (term.isLeaf()) {
+            return term;
+        }
+
+        // Recurse into function arguments
+        FunctionApp f = (FunctionApp) term;
+        List<Term> newArgs = new ArrayList<>();
+        boolean changed = false;
+
+        for (Term arg : f.getArguments()) {
+            Term newArg = replaceInTerm(arg, oldTerm, newTerm);
+            newArgs.add(newArg);
+            if (newArg != arg) {
+                changed = true;
+            }
+        }
+
+        // If any argument changed, create new function application
+        if (changed) {
+            return factory.createFunctionApp(f.getSymbol(), newArgs);
+        }
+
+        return term;
     }
 }

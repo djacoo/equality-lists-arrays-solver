@@ -1,0 +1,8 @@
+# Test case for T_E (Theory of Equality) - UNSAT
+# Source: Bradley & Manna, Section 9.3, Example 9.1
+# Expected: UNSAT
+
+# Transitivity leads to contradiction
+a = b
+b = c
+c != a
