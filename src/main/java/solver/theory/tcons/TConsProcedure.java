@@ -15,18 +15,26 @@ import java.util.Set;
 /**
  * T_cons-Procedure: Satisfiability checker for the Theory of Lists.
  *
- * The Theory of Lists (T_cons) extends T_E with three interpreted symbols:
- * - cons(x, y): List constructor
- * - car(x): Head selector
- * - cdr(x): Tail selector
+ * BRADLEY & MANNA NOTATION (Section 9.4, page 259):
+ * ================================================================
+ * Signature: Σ_cons : {cons, car, cdr, atom, =}
  *
- * Algorithm:
- * 1. Identify all cons(x, y) terms in the literals
- * 2. For each cons(x, y), add axioms:
- *    - car(cons(x, y)) = x
- *    - cdr(cons(x, y)) = y
- * 3. Run T_E-procedure on original literals + axioms
- * 4. Return result
+ * AXIOMS (Bradley & Manna Section 9.4, page 259):
+ * - Axiom 4 (left projection):  ∀x,y. car(cons(x,y)) = x
+ * - Axiom 5 (right projection): ∀x,y. cdr(cons(x,y)) = y
+ * - Axiom 6 (construction):     ∀x. ¬atom(x) → cons(car(x),cdr(x)) = x
+ * - Axiom 7 (atom):             ∀x,y. ¬atom(cons(x,y))
+ *
+ * DECISION PROCEDURE (Bradley & Manna Section 9.4, page 260):
+ * 1. Construct initial DAG for subterm set S_F
+ * 2. For each node n such that n.fn = cons:
+ *    - Add car(n) to DAG and MERGE car(n) n.args[1]
+ *    - Add cdr(n) to DAG and MERGE cdr(n) n.args[2]
+ * 3. For i ∈ {1,...,m}, MERGE s_i t_i
+ * 4. For i ∈ {m+1,...,n}, if FIND s_i = FIND t_i, return unsatisfiable
+ * 5. For i ∈ {1,...,ℓ}, if ∃v. FIND v = FIND u_i ∧ v.fn = cons,
+ *    return unsatisfiable by axiom (atom)
+ * 6. Otherwise, return satisfiable
  */
 public class TConsProcedure {
     private final TermFactory termFactory;
@@ -50,23 +58,77 @@ public class TConsProcedure {
     /**
      * Checks satisfiability of a set of literals in T_cons.
      *
-     * @param literals Collection of equality and disequality literals
+     * Implements Bradley & Manna Section 9.4, page 260 algorithm.
+     *
+     * @param literals Collection of equality, disequality, and atom literals
      * @return Result indicating SAT or UNSAT with optional witness/conflict
      */
     public Result checkSat(Collection<Literal> literals) {
-        // Step 1: Extract all cons terms from the literals
-        Set<FunctionApp> consTerms = TConsSymbols.extractConsTerms(literals);
+        // Preprocessing: Replace ¬atom(u_i) with u_i = cons(car(u_i), cdr(u_i))
+        // per (construction) axiom (B&M page 260)
+        List<Literal> processedLiterals = new ArrayList<>();
+        List<Term> atomTerms = new ArrayList<>();  // Terms with atom(u_i) literals
 
-        // Step 2: Generate axioms for each cons term
+        for (Literal lit : literals) {
+            if (lit.isNegativeAtom()) {
+                // ¬atom(u) → replace with u = cons(car(u), cdr(u))
+                // per Axiom 6 (construction)
+                Term u = lit.getAtomTerm();
+                Term carU = termFactory.createFunctionApp(TConsSymbols.CAR, u);
+                Term cdrU = termFactory.createFunctionApp(TConsSymbols.CDR, u);
+                Term consCarCdr = termFactory.createFunctionApp(TConsSymbols.CONS, carU, cdrU);
+                processedLiterals.add(Literal.equality(u, consCarCdr));
+            } else if (lit.isPositiveAtom()) {
+                // atom(u) → keep track for Step 5 check
+                atomTerms.add(lit.getAtomTerm());
+                // Don't add to processedLiterals - atom is implicit constraint
+            } else {
+                // Regular equality/disequality literal
+                processedLiterals.add(lit);
+            }
+        }
+
+        // Step 1 & 2: Extract all cons terms and generate axioms
+        Set<FunctionApp> consTerms = TConsSymbols.extractConsTerms(processedLiterals);
         List<Literal> axioms = generateAxioms(consTerms);
 
-        // Step 3: Combine original literals with axioms
-        List<Literal> allLiterals = new ArrayList<>(literals);
+        // Step 3: Combine literals with axioms
+        List<Literal> allLiterals = new ArrayList<>(processedLiterals);
         allLiterals.addAll(axioms);
 
         // Step 4: Run T_E-procedure on combined set
         TEProcedure teProcedure = new TEProcedure();
-        return teProcedure.checkSat(allLiterals);
+        Result result = teProcedure.checkSat(allLiterals);
+
+        // If UNSAT, return immediately
+        if (result.isUnsat()) {
+            return result;
+        }
+
+        // Step 5: Check atom constraints (B&M page 260, Step 5)
+        // For i ∈ {1,...,ℓ}, if ∃v. FIND v = FIND u_i ∧ v.fn = cons,
+        // return unsatisfiable by axiom (atom)
+        if (!atomTerms.isEmpty()) {
+            var cc = teProcedure.getCongruenceClosure();
+            for (Term atomTerm : atomTerms) {
+                // Find representative of atomTerm
+                Term rep = cc.find(atomTerm);
+
+                // Check if any cons term is in the same equivalence class
+                for (FunctionApp cons : consTerms) {
+                    if (cc.find(cons).equals(rep)) {
+                        return Result.unsat(
+                            String.format("Atom constraint violated: atom(%s) but %s ≡ %s (cons term). " +
+                                         "Bradley & Manna Axiom 7: ∀x,y. ¬atom(cons(x,y))",
+                                         atomTerm.getSymbol(), atomTerm.getSymbol(), cons.getSymbol())
+                        );
+                    }
+                }
+            }
+        }
+
+        // Step 6: Return satisfiable
+        return result;
     }
 
     /**

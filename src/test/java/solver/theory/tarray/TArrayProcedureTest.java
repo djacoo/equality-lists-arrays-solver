@@ -316,4 +316,195 @@ public class TArrayProcedureTest {
 
         assertTrue(result.isSat(), "Should work with default constructor");
     }
+
+    // ===================================================================
+    // Bradley-Manna Exercise 9.8 Tests
+    // These tests come from the textbook (page 268)
+    // ===================================================================
+
+    @Test
+    public void testBradleyManna_9_8_a() {
+        // a⟨i ⊳ e⟩[j] = e ∧ i ≠ j
+        // By axiom 4: if i ≠ j then a⟨i⊳e⟩[j] = a[j]
+        // So this is equivalent to: a[j] = e ∧ i ≠ j
+        // This is SAT (a[j] can originally equal e)
+        Variable a = factory.createVariable("a");
+        Variable i = factory.createVariable("i");
+        Variable j = factory.createVariable("j");
+        Variable e = factory.createVariable("e");
+
+        FunctionApp store = factory.createFunctionApp("store", a, i, e);
+        FunctionApp select = factory.createFunctionApp("select", store, j);
+
+        Literal eq = Literal.equality(select, e);
+        Literal diseq = Literal.disequality(i, j);
+
+        Result result = procedure.check(Arrays.asList(eq, diseq));
+
+        assertTrue(result.isSat(),
+            "Bradley-Manna 9.8(a): a⟨i⊳e⟩[j]=e ∧ i≠j should be SAT (a[j] can equal e)");
+    }
+
+    @Test
+    public void testBradleyManna_9_8_b() {
+        // a⟨i ⊳ e⟩[j] = e ∧ a[j] ≠ e
+        // Branch 1 (i=j): e = e ∧ a[j] ≠ e is SAT (a[j] is old value, can be ≠ e)
+        // Branch 2 (i≠j): a[j] = e ∧ a[j] ≠ e is UNSAT
+        // Overall: SAT
+        Variable a = factory.createVariable("a");
+        Variable i = factory.createVariable("i");
+        Variable j = factory.createVariable("j");
+        Variable e = factory.createVariable("e");
+
+        FunctionApp store = factory.createFunctionApp("store", a, i, e);
+        FunctionApp selectStore = factory.createFunctionApp("select", store, j);
+        FunctionApp selectA = factory.createFunctionApp("select", a, j);
+
+        Literal eq1 = Literal.equality(selectStore, e);
+        Literal diseq = Literal.disequality(selectA, e);
+
+        Result result = procedure.check(Arrays.asList(eq1, diseq));
+
+        assertTrue(result.isSat(),
+            "Bradley-Manna 9.8(b): a⟨i⊳e⟩[j]=e ∧ a[j]≠e should be SAT (i=j case)");
+    }
+
+    @Test
+    public void testBradleyManna_9_8_c() {
+        // a⟨i ⊳ e⟩[j] = e ∧ i ≠ j ∧ a[j] ≠ e
+        // Expected: UNSAT
+        Variable a = factory.createVariable("a");
+        Variable i = factory.createVariable("i");
+        Variable j = factory.createVariable("j");
+        Variable e = factory.createVariable("e");
+
+        FunctionApp store = factory.createFunctionApp("store", a, i, e);
+        FunctionApp selectStore = factory.createFunctionApp("select", store, j);
+        FunctionApp selectA = factory.createFunctionApp("select", a, j);
+
+        Literal eq = Literal.equality(selectStore, e);
+        Literal diseq1 = Literal.disequality(i, j);
+        Literal diseq2 = Literal.disequality(selectA, e);
+
+        Result result = procedure.check(Arrays.asList(eq, diseq1, diseq2));
+
+        assertTrue(result.isUnsat(),
+            "Bradley-Manna 9.8(c): a⟨i⊳e⟩[j]=e ∧ i≠j ∧ a[j]≠e should be UNSAT");
+    }
+
+    @Test
+    public void testBradleyManna_9_8_d() {
+        // a⟨i ⊳ e⟩⟨j ⊳ f⟩[k] = g ∧ j ≠ k ∧ i = j ∧ a[k] ≠ g
+        // Expected: UNSAT
+        Variable a = factory.createVariable("a");
+        Variable i = factory.createVariable("i");
+        Variable j = factory.createVariable("j");
+        Variable k = factory.createVariable("k");
+        Variable e = factory.createVariable("e");
+        Variable f = factory.createVariable("f");
+        Variable g = factory.createVariable("g");
+
+        FunctionApp store1 = factory.createFunctionApp("store", a, i, e);
+        FunctionApp store2 = factory.createFunctionApp("store", store1, j, f);
+        FunctionApp selectStore2 = factory.createFunctionApp("select", store2, k);
+        FunctionApp selectA = factory.createFunctionApp("select", a, k);
+
+        Literal eq1 = Literal.equality(selectStore2, g);
+        Literal diseq1 = Literal.disequality(j, k);
+        Literal eq2 = Literal.equality(i, j);
+        Literal diseq2 = Literal.disequality(selectA, g);
+
+        Result result = procedure.check(Arrays.asList(eq1, diseq1, eq2, diseq2));
+
+        assertTrue(result.isUnsat(),
+            "Bradley-Manna 9.8(d): a⟨i⊳e⟩⟨j⊳f⟩[k]=g ∧ j≠k ∧ i=j ∧ a[k]≠g should be UNSAT");
+    }
+
+    @Test
+    public void testBradleyManna_9_8_e() {
+        // i₁ = j ∧ a[j] = v₁ ∧ a⟨i₁ ⊳ v₁⟩⟨i₂ ⊳ v₂⟩[j] ≠ a[j]
+        // This is Example 9.21 from the textbook
+        // Branch 1 (i₂=j): i₁=j ∧ i₂=j ∧ a[j]=v₁ ∧ v₂ ≠ v₁ → SAT
+        // Branch 2 (i₂≠j): leads to v₁ ≠ v₁ → UNSAT
+        // Overall: SAT (from Branch 1)
+        Variable a = factory.createVariable("a");
+        Variable j = factory.createVariable("j");
+        Variable i1 = factory.createVariable("i1");
+        Variable i2 = factory.createVariable("i2");
+        Variable v1 = factory.createVariable("v1");
+        Variable v2 = factory.createVariable("v2");
+
+        FunctionApp selectA = factory.createFunctionApp("select", a, j);
+        FunctionApp store1 = factory.createFunctionApp("store", a, i1, v1);
+        FunctionApp store2 = factory.createFunctionApp("store", store1, i2, v2);
+        FunctionApp selectStore2 = factory.createFunctionApp("select", store2, j);
+
+        Literal eq1 = Literal.equality(i1, j);
+        Literal eq2 = Literal.equality(selectA, v1);
+        Literal diseq = Literal.disequality(selectStore2, selectA);
+
+        Result result = procedure.check(Arrays.asList(eq1, eq2, diseq));
+
+        assertTrue(result.isSat(),
+            "Bradley-Manna 9.8(e): i₁=j ∧ a[j]=v₁ ∧ a⟨i₁⊳v₁⟩⟨i₂⊳v₂⟩[j]≠a[j] should be SAT");
+    }
+
+    /**
+     * Bradley & Manna Example 9.21 (page 264).
+     *
+     * F : i₁ = j ∧ i₁ ≠ i₂ ∧ a[j] = v₁ ∧ a⟨i₁ ⊳ v₁⟩⟨i₂ ⊳ v₂⟩[j] ≠ a[j]
+     *
+     * Using B&M mathematical notation:
+     * - a[j] means select(a, j)
+     * - a⟨i ⊳ v⟩ means store(a, i, v)
+     *
+     * This is TA-UNSATISFIABLE. The reasoning (page 264):
+     *
+     * Select read-over-write term: a⟨i₁⊳v₁⟩⟨i₂⊳v₂⟩[j]
+     *
+     * Branch 1 (i₂=j):
+     *   F₁: i₂=j ∧ i₁=j ∧ i₁≠i₂ ∧ a[j]=v₁ ∧ v₂≠a[j]
+     *   First two literals imply i₁=i₂, contradicting third → UNSAT
+     *
+     * Branch 2 (i₂≠j):
+     *   F₂: i₂≠j ∧ i₁=j ∧ i₁≠i₂ ∧ a[j]=v₁ ∧ a⟨i₁⊳v₁⟩[j]≠a[j]
+     *   Sub-branch 2.1 (i₁=j):
+     *     F₃: i₁=j ∧ i₂≠j ∧ i₁=j ∧ i₁≠i₂ ∧ a[j]=v₁ ∧ v₁≠a[j]
+     *     Last two literals: a[j]=v₁ and v₁≠a[j] → UNSAT
+     *   Sub-branch 2.2 (i₁≠j):
+     *     F₄: i₁≠j ∧ i₂≠j ∧ i₁=j ∧ i₁≠i₂ ∧ a[j]=v₁ ∧ a[j]≠a[j]
+     *     First and third literals contradict → UNSAT
+     *
+     * All branches UNSAT → F is TA-unsatisfiable
+     */
+    @Test
+    public void testBradleyMannaExample921() {
+        // F : i₁ = j ∧ i₁ ≠ i₂ ∧ a[j] = v₁ ∧ a⟨i₁ ⊳ v₁⟩⟨i₂ ⊳ v₂⟩[j] ≠ a[j]
+        Variable a = factory.createVariable("a");
+        Variable i1 = factory.createVariable("i1");
+        Variable i2 = factory.createVariable("i2");
+        Variable j = factory.createVariable("j");
+        Variable v1 = factory.createVariable("v1");
+        Variable v2 = factory.createVariable("v2");
+
+        // Build terms using B&M notation equivalents
+        FunctionApp aAtJ = factory.createFunctionApp("select", a, j);           // a[j]
+        FunctionApp store1 = factory.createFunctionApp("store", a, i1, v1);    // a⟨i₁⊳v₁⟩
+        FunctionApp store2 = factory.createFunctionApp("store", store1, i2, v2); // a⟨i₁⊳v₁⟩⟨i₂⊳v₂⟩
+        FunctionApp store2AtJ = factory.createFunctionApp("select", store2, j);  // a⟨i₁⊳v₁⟩⟨i₂⊳v₂⟩[j]
+
+        // Literals from Example 9.21
+        Literal eq1 = Literal.equality(i1, j);          // i₁ = j
+        Literal diseq1 = Literal.disequality(i1, i2);   // i₁ ≠ i₂
+        Literal eq2 = Literal.equality(aAtJ, v1);       // a[j] = v₁
+        Literal diseq2 = Literal.disequality(store2AtJ, aAtJ); // a⟨i₁⊳v₁⟩⟨i₂⊳v₂⟩[j] ≠ a[j]
+
+        TArrayProcedure procedure = new TArrayProcedure(factory);
+        Result result = procedure.check(Arrays.asList(eq1, diseq1, eq2, diseq2));
+
+        assertTrue(result.isUnsat(),
+            "Bradley & Manna Example 9.21: i₁=j ∧ i₁≠i₂ ∧ a[j]=v₁ ∧ a⟨i₁⊳v₁⟩⟨i₂⊳v₂⟩[j]≠a[j] should be UNSAT");
+        assertTrue(result.getConflict().isPresent(),
+            "Should have conflict explanation");
+    }
 }

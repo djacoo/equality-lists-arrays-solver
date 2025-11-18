@@ -30,13 +30,26 @@ select(arr, i) = v
 ```
 
 ### 2. Disequality Literals
-Format: `term != term` or `term ≠ term`
+Format: `term != term`
 
 Examples:
 ```
 a != b
 car(x) != a
 select(arr, i) != 0
+```
+
+### 3. Atom Predicates (T_cons)
+Format: `atom(term)` or `!atom(term)`
+
+The `atom` predicate is a unary predicate from the T_cons theory (Bradley & Manna Section 9.4).
+By Axiom 7: `∀x,y. ¬atom(cons(x,y))` - all cons-constructed values are non-atomic.
+
+Examples:
+```
+atom(x)
+!atom(cons(a, b))
+atom(car(z))
 ```
 
 ---
@@ -51,24 +64,30 @@ Terms are built from:
 ### Grammar (EBNF)
 
 ```ebnf
-Literal     ::= Term '=' Term | Term '!=' Term
+Literal     ::= Equality | Disequality | Atom | NegAtom
+
+Equality    ::= Term '=' Term
+
+Disequality ::= Term '!=' Term
+
+Atom        ::= 'atom' '(' Term ')'
+
+NegAtom     ::= '!' 'atom' '(' Term ')'
 
 Term        ::= Variable
-              | Constant
               | FunctionApp
 
 Variable    ::= Identifier
 
-Constant    ::= Identifier
-
-FunctionApp ::= Identifier '(' ')'
-              | Identifier '(' Term (',' Term)* ')'
+FunctionApp ::= Identifier '(' Term (',' Term)* ')'
 
 Identifier  ::= [a-zA-Z_][a-zA-Z0-9_]*
 
 Whitespace  ::= [ \t\n\r]+
 Comment     ::= '#' [^\n]* | '//' [^\n]*
 ```
+
+**Note:** The parser treats all simple identifiers as variables. Function applications require parentheses.
 
 ### Reserved Function Symbols
 
@@ -465,36 +484,41 @@ public class Parser {
 
 ---
 
-## Implementation Checklist
+## Implementation Status
 
-### Phase 1: Lexer
-- [ ] Implement Token class
-- [ ] Implement Lexer class
-- [ ] Handle identifiers
-- [ ] Handle operators (=, !=)
-- [ ] Handle parentheses and commas
-- [ ] Skip whitespace and comments
-- [ ] Add unit tests
+### Phase 1: Lexer ✓ COMPLETE
+- [x] Implement Token class (`solver.parser.Token`)
+- [x] Implement Lexer class (`solver.parser.Lexer`)
+- [x] Handle identifiers
+- [x] Handle operators (=, !=, !)
+- [x] Handle parentheses and commas
+- [x] Skip whitespace and comments (# and //)
+- [x] Support for atom predicate
+- [x] Error messages with line/column numbers
 
-### Phase 2: Parser
-- [ ] Implement Parser class
-- [ ] Parse literals
-- [ ] Parse terms (variables/functions)
-- [ ] Build Term objects using TermFactory
-- [ ] Handle syntax errors gracefully
-- [ ] Add unit tests
+### Phase 2: Parser ✓ COMPLETE
+- [x] Implement Parser class (`solver.parser.Parser`)
+- [x] Parse equality literals
+- [x] Parse disequality literals
+- [x] Parse atom predicates (atom(t) and !atom(t))
+- [x] Parse terms (variables/functions)
+- [x] Build Term objects using TermFactory
+- [x] Handle syntax errors gracefully
+- [x] Comprehensive error handling
 
-### Phase 3: Integration
-- [ ] Read from stdin
-- [ ] Read from file
-- [ ] Return Literal objects to solver
-- [ ] Add integration tests
+### Phase 3: Integration ✓ COMPLETE
+- [x] Read from stdin (`InputReader.readFromStdin()`)
+- [x] Read from file (`InputReader.readFromFile()`)
+- [x] Return Literal objects to solver
+- [x] Command-line interface in Main.java
+- [x] Help system (--help flag)
+- [x] Integration tests with example files
 
 ### Phase 4: Optional Features
-- [ ] Interactive mode
-- [ ] SMT-LIB parser
+- [ ] Interactive mode with REPL
+- [ ] SMT-LIB parser (QF-UF)
 - [ ] JSON parser
-- [ ] Better error messages with line numbers
+- [x] Error messages with line/column numbers
 
 ---
 

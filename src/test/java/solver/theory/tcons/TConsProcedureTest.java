@@ -316,4 +316,107 @@ public class TConsProcedureTest {
         assertEquals(factory, tcons.getTermFactory(),
             "Should return the term factory instance");
     }
+
+    /**
+     * Bradley & Manna Example 9.20 (page 260-262).
+     *
+     * F : car(x) = car(y) ∧ cdr(x) = cdr(y) ∧ f(x) ≠ f(y) ∧ ¬atom(x) ∧ ¬atom(y)
+     *
+     * This is Tcons-unsatisfiable. The reasoning:
+     * 1. ¬atom(x) is replaced by x = cons(car(x), cdr(x)) by Axiom 6 (construction)
+     * 2. ¬atom(y) is replaced by y = cons(car(y), cdr(y)) by Axiom 6 (construction)
+     * 3. Since car(x) = car(y) and cdr(x) = cdr(y), we get:
+     *    cons(car(x), cdr(x)) = cons(car(y), cdr(y))
+     * 4. Thus x = y
+     * 5. By congruence, f(x) = f(y)
+     * 6. Contradiction with f(x) ≠ f(y)
+     *
+     * This shows that two non-atomic structures with equal components must be equal.
+     */
+    @Test
+    public void testBradleyMannaExample920() {
+        // F : car(x) = car(y) ∧ cdr(x) = cdr(y) ∧ f(x) ≠ f(y) ∧ ¬atom(x) ∧ ¬atom(y)
+        Variable x = factory.createVariable("x");
+        Variable y = factory.createVariable("y");
+
+        FunctionApp carX = factory.createFunctionApp("car", x);
+        FunctionApp carY = factory.createFunctionApp("car", y);
+        FunctionApp cdrX = factory.createFunctionApp("cdr", x);
+        FunctionApp cdrY = factory.createFunctionApp("cdr", y);
+
+        FunctionApp fx = factory.createFunctionApp("f", x);
+        FunctionApp fy = factory.createFunctionApp("f", y);
+
+        // Literals from Example 9.20
+        Literal carEq = Literal.equality(carX, carY);   // car(x) = car(y)
+        Literal cdrEq = Literal.equality(cdrX, cdrY);   // cdr(x) = cdr(y)
+        Literal diseq = Literal.disequality(fx, fy);     // f(x) ≠ f(y)
+        Literal notAtomX = Literal.notAtom(x);           // ¬atom(x)
+        Literal notAtomY = Literal.notAtom(y);           // ¬atom(y)
+
+        TConsProcedure tcons = new TConsProcedure(factory);
+        Result result = tcons.checkSat(Arrays.asList(carEq, cdrEq, diseq, notAtomX, notAtomY));
+
+        assertTrue(result.isUnsat(),
+            "Bradley & Manna Example 9.20: car(x)=car(y) ∧ cdr(x)=cdr(y) ∧ f(x)≠f(y) ∧ ¬atom(x) ∧ ¬atom(y) should be UNSAT");
+        assertTrue(result.getConflict().isPresent(),
+            "Should have conflict explanation");
+    }
+
+    /**
+     * Test atom predicate: atom(x) with x = cons(a,b) should be UNSAT.
+     *
+     * Bradley & Manna Axiom 7 (page 259): ∀x,y. ¬atom(cons(x,y))
+     *
+     * This test verifies Step 5 of the Tcons decision procedure.
+     */
+    @Test
+    public void testAtomConflictWithCons() {
+        // atom(x) ∧ x = cons(a, b) → UNSAT (Axiom 7)
+        Variable x = factory.createVariable("x");
+        Variable a = factory.createVariable("a");
+        Variable b = factory.createVariable("b");
+
+        FunctionApp cons = factory.createFunctionApp("cons", a, b);
+
+        Literal atomX = Literal.atom(x);                // atom(x)
+        Literal xEqCons = Literal.equality(x, cons);     // x = cons(a,b)
+
+        TConsProcedure tcons = new TConsProcedure(factory);
+        Result result = tcons.checkSat(Arrays.asList(atomX, xEqCons));
+
+        assertTrue(result.isUnsat(),
+            "atom(x) with x = cons(a,b) should be UNSAT (Axiom 7: ¬atom(cons(x,y)))");
+        assertTrue(result.getConflict().isPresent());
+        assertTrue(result.getConflict().get().contains("Axiom 7"),
+            "Conflict should reference Axiom 7");
+    }
+
+    /**
+     * Test ¬atom(x) gets correctly transformed to x = cons(car(x), cdr(x)).
+     *
+     * Bradley & Manna Axiom 6 (page 259): ∀x. ¬atom(x) → cons(car(x),cdr(x)) = x
+     */
+    @Test
+    public void testNotAtomTransformation() {
+        // ¬atom(x) ∧ car(x) = a ∧ cdr(x) = b ∧ x ≠ cons(a, b) → UNSAT
+        Variable x = factory.createVariable("x");
+        Variable a = factory.createVariable("a");
+        Variable b = factory.createVariable("b");
+
+        FunctionApp carX = factory.createFunctionApp("car", x);
+        FunctionApp cdrX = factory.createFunctionApp("cdr", x);
+        FunctionApp cons = factory.createFunctionApp("cons", a, b);
+
+        Literal notAtom = Literal.notAtom(x);            // ¬atom(x)
+        Literal carEq = Literal.equality(carX, a);       // car(x) = a
+        Literal cdrEq = Literal.equality(cdrX, b);       // cdr(x) = b
+        Literal diseq = Literal.disequality(x, cons);    // x ≠ cons(a,b)
+
+        TConsProcedure tcons = new TConsProcedure(factory);
+        Result result = tcons.checkSat(Arrays.asList(notAtom, carEq, cdrEq, diseq));
+
+        assertTrue(result.isUnsat(),
+            "¬atom(x) transforms to x = cons(car(x),cdr(x)), which with car(x)=a, cdr(x)=b implies x=cons(a,b)");
+    }
 }

@@ -11,13 +11,29 @@ import java.util.Set;
 /**
  * Utility class for recognizing T_A (Theory of Arrays) symbols.
  *
- * T_A has two interpreted function symbols:
- * - select(a, i): Returns the value at index i in array a
- * - store(a, i, v): Returns a new array identical to a except at index i, which has value v
+ * BRADLEY & MANNA NOTATION (Section 9.5, page 263):
+ * ================================================================
+ * The signature of T_A is: Σ_A : {·[·], ·⟨· ⊳ ·⟩, =}
+ *
+ * Mathematical Notation → Implementation:
+ * - a[i]         ↔  select(a, i)     [read/select operation]
+ * - a⟨i ⊳ v⟩     ↔  store(a, i, v)   [write/store operation]
+ *
+ * AXIOMS (Bradley & Manna Section 9.5):
+ * - Axiom 2 (array congruence): ∀a,i,j. i = j → a[i] = a[j]
+ * - Axiom 3 (read-over-write 1): ∀a,v,i,j. i = j → a⟨i ⊳ v⟩[j] = v
+ * - Axiom 4 (read-over-write 2): ∀a,v,i,j. i ≠ j → a⟨i ⊳ v⟩[j] = a[j]
+ *
+ * Note: We use "select" and "store" as ASCII representations of the
+ * mathematical symbols ·[·] and ·⟨· ⊳ ·⟩ for implementation purposes.
+ * This is standard practice (McCarthy 1962) and maintains compatibility
+ * with SMT-LIB notation.
  */
 public class TArraySymbols {
     // Symbol names for T_A
+    // B&M notation: ·[·] (read operation)
     public static final String SELECT = "select";
+    // B&M notation: ·⟨· ⊳ ·⟩ (write operation)
     public static final String STORE = "store";
 
     /**
@@ -27,7 +43,7 @@ public class TArraySymbols {
      * @return true if term is select(a, i)
      */
     public static boolean isSelect(Term term) {
-        if (term.isLeaf()) {
+        if (term == null || term.isLeaf()) {
             return false;
         }
         FunctionApp f = (FunctionApp) term;
@@ -41,7 +57,7 @@ public class TArraySymbols {
      * @return true if term is store(a, i, v)
      */
     public static boolean isStore(Term term) {
-        if (term.isLeaf()) {
+        if (term == null || term.isLeaf()) {
             return false;
         }
         FunctionApp f = (FunctionApp) term;
@@ -76,6 +92,10 @@ public class TArraySymbols {
      * @return true if term or any subterm is a T_A symbol
      */
     private static boolean containsTArraySymbol(Term term) {
+        if (term == null) {
+            return false;
+        }
+
         if (isTArraySymbol(term)) {
             return true;
         }
@@ -128,6 +148,10 @@ public class TArraySymbols {
      * Recursively extracts select terms from a term.
      */
     private static void extractSelectTermsFromTerm(Term term, Set<FunctionApp> selectTerms) {
+        if (term == null) {
+            return;
+        }
+
         if (isSelect(term)) {
             selectTerms.add((FunctionApp) term);
         }
@@ -161,6 +185,10 @@ public class TArraySymbols {
      * Recursively extracts store terms from a term.
      */
     private static void extractStoreTermsFromTerm(Term term, Set<FunctionApp> storeTerms) {
+        if (term == null) {
+            return;
+        }
+
         if (isStore(term)) {
             storeTerms.add((FunctionApp) term);
         }

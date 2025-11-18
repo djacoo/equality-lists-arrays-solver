@@ -293,4 +293,41 @@ public class TEProcedureTest {
         assertTrue(eq.toString().contains("="));
         assertTrue(diseq.toString().contains("!="));
     }
+
+    /**
+     * Bradley & Manna Example 9.10 (page 249-250).
+     *
+     * F : f(f(f(a))) = a ∧ f(f(f(f(f(a))))) = a ∧ f(a) ≠ a
+     *
+     * This is TE-unsatisfiable. The algorithm deduces:
+     * 1. From f³(a) = a: f⁴(a) = f(a), f⁵(a) = f²(a)
+     * 2. From f⁵(a) = a and f⁵(a) = f²(a): f²(a) = a
+     * 3. From f³(a) = a and f²(a) = a: f(a) = a
+     * 4. Contradiction with f(a) ≠ a
+     *
+     * This corresponds to the detailed execution shown in Figure 9.2 of B&M.
+     */
+    @Test
+    public void testBradleyMannaExample910() {
+        // F : f(f(f(a))) = a ∧ f(f(f(f(f(a))))) = a ∧ f(a) ≠ a
+        Constant a = factory.createConstant("a");
+        FunctionApp fa = factory.createFunctionApp("f", a);         // f(a)
+        FunctionApp f2a = factory.createFunctionApp("f", fa);       // f²(a)
+        FunctionApp f3a = factory.createFunctionApp("f", f2a);      // f³(a)
+        FunctionApp f4a = factory.createFunctionApp("f", f3a);      // f⁴(a)
+        FunctionApp f5a = factory.createFunctionApp("f", f4a);      // f⁵(a)
+
+        // Literals from Example 9.10
+        Literal eq1 = Literal.equality(f3a, a);     // f³(a) = a
+        Literal eq2 = Literal.equality(f5a, a);     // f⁵(a) = a
+        Literal diseq = Literal.disequality(fa, a); // f(a) ≠ a
+
+        TEProcedure te = new TEProcedure();
+        Result result = te.checkSat(Arrays.asList(eq1, eq2, diseq));
+
+        assertTrue(result.isUnsat(),
+            "Bradley & Manna Example 9.10: f³(a) = a ∧ f⁵(a) = a ∧ f(a) ≠ a should be UNSAT");
+        assertTrue(result.getConflict().isPresent(),
+            "Should have conflict explanation");
+    }
 }
