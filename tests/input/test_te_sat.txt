@@ -1,0 +1,7 @@
+# Test case for T_E (Theory of Equality) - SAT
+# Source: Bradley & Manna, Section 9.3
+# Expected: SAT
+
+# Simple transitivity
+a = b
+b = c

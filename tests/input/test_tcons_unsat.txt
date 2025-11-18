@@ -1,0 +1,7 @@
+# Test case for T_cons (Theory of Lists) - UNSAT
+# Source: Bradley & Manna, Section 9.4, Axiom 7
+# Expected: UNSAT (atom(cons(x,y)) is false by axiom)
+
+# cons creates non-atomic values
+cons(x, y) = z
+atom(z)

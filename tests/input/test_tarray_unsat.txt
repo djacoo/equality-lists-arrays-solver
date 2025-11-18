@@ -1,0 +1,7 @@
+# Test case for T_A (Theory of Arrays) - UNSAT
+# Source: Bradley & Manna, Section 9.5, Example 9.10
+# Expected: UNSAT
+
+# Contradictory array properties
+select(store(a, i, v), i) = w
+v != w

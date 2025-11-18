@@ -1,0 +1,9 @@
+# Test case for T_cons (Theory of Lists) - SAT
+# Source: Bradley & Manna, Section 9.4
+# Expected: SAT
+
+# List construction and decomposition
+cons(x, y) = z
+car(z) = x
+cdr(z) = y
+atom(x)

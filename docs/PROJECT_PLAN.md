@@ -24,81 +24,81 @@
 - [x] Understand DAG representation and equivalence classes
 
 ### 1.3 Design Decisions
-- [ ] Design overall architecture (modular components for each theory)
-- [ ] Choose data structures for DAG representation
-- [ ] Choose data structures for equivalence classes and find/union operations
-- [ ] Design input format for literal sets
-- [ ] Design output format (SAT/UNSAT with optional witness/explanation)
-- [ ] Plan optional features (forbidden list/set, non-recursive FIND)
+- [x] Design overall architecture (modular components for each theory)
+- [x] Choose data structures for DAG representation
+- [x] Choose data structures for equivalence classes and find/union operations
+- [x] Design input format for literal sets
+- [x] Design output format (SAT/UNSAT with optional witness/explanation)
+- [x] Plan optional features (forbidden list/set, non-recursive FIND)
 
 ---
 
 ## Phase 2: Core Implementation (Week 3-7)
 
-### 2.1 Basic Data Structures
-- [ ] Implement term/node representation for DAG
-- [ ] Implement equivalence class data structure
-- [ ] Implement ccpar sets tracking
-- [ ] Implement pending list/queue for merge propagation
+### 2.1 Basic Data Structures ✓ COMPLETE
+- [x] Implement term/node representation for DAG
+- [x] Implement equivalence class data structure
+- [x] Implement ccpar sets tracking
+- [x] Implement pending list/queue for merge propagation
 
-### 2.2 Congruence Closure (CC) Algorithm - Core of T_E
-- [ ] Implement FIND function
-- [ ] Implement UNION function with largest ccpar optimization
-- [ ] Implement MERGE procedure
-- [ ] Implement CONGRUENT check
-- [ ] Implement main CC algorithm on DAGs
-- [ ] Test CC algorithm with simple equality examples
+### 2.2 Congruence Closure (CC) Algorithm - Core of T_E ✓ COMPLETE
+- [x] Implement FIND function
+- [x] Implement UNION function with largest ccpar optimization
+- [x] Implement MERGE procedure
+- [x] Implement CONGRUENT check
+- [x] Implement main CC algorithm on DAGs
+- [x] Test CC algorithm with simple equality examples
 
-### 2.3 T_E-Procedure (Theory of Equality)
-- [ ] Parse equality literals (e.g., a = b, f(x) = g(y))
-- [ ] Parse disequality literals (e.g., a ≠ b)
-- [ ] Implement T_E satisfiability check using CC
-- [ ] Test with examples from Section 9.3
+### 2.3 T_E-Procedure (Theory of Equality) ✓ COMPLETE
+- [x] Parse equality literals (e.g., a = b, f(x) = g(y))
+- [x] Parse disequality literals (e.g., a ≠ b)
+- [x] Implement T_E satisfiability check using CC
+- [x] Test with examples from Section 9.3
 
-### 2.4 T_cons-Procedure (Theory of Lists)
-- [ ] Identify T_cons symbols (car, cdr, cons)
-- [ ] Implement T_cons axioms integration into CC
-  - [ ] Axiom: car(cons(x,y)) = x
-  - [ ] Axiom: cdr(cons(x,y)) = y
-  - [ ] Handle potential cycles
-- [ ] Test with list examples from Section 9.4
+### 2.4 T_cons-Procedure (Theory of Lists) ✓ COMPLETE
+- [x] Identify T_cons symbols (car, cdr, cons)
+- [x] Implement T_cons axioms integration into CC
+  - [x] Axiom: car(cons(x,y)) = x
+  - [x] Axiom: cdr(cons(x,y)) = y
+  - [x] Handle potential cycles
+- [x] Test with list examples from Section 9.4
 
-### 2.5 T_A-Procedure (Theory of Arrays)
-- [ ] Identify array symbols (select, store)
-- [ ] Implement store decomposition (creates two subproblems per store)
-  - [ ] Subproblem 1: i = j ∧ select(store(a,i,v),j) = v
-  - [ ] Subproblem 2: i ≠ j ∧ select(store(a,i,v),j) = select(a,j)
-- [ ] Implement select processing (read-over-write axioms)
-- [ ] Handle multiple store operations (recursive decomposition)
-- [ ] Test with array examples from Section 9.5
+### 2.5 T_A-Procedure (Theory of Arrays) ✓ COMPLETE
+- [x] Identify array symbols (select, store)
+- [x] Implement store decomposition (creates two subproblems per store)
+  - [x] Subproblem 1: i = j ∧ select(store(a,i,v),j) = v
+  - [x] Subproblem 2: i ≠ j ∧ select(store(a,i,v),j) = select(a,j)
+- [x] Implement select processing (read-over-write axioms)
+- [x] Handle multiple store operations (recursive decomposition)
+- [x] Test with array examples from Section 9.5
 
-### 2.6 Main Solver Integration
-- [ ] Implement main solver loop
-  1. Check for store symbols → decompose into subproblems
-  2. For each subproblem, process select symbols
-  3. For each subproblem, check for T_cons symbols
-  4. Apply T_cons-procedure or T_E-procedure accordingly
-- [ ] Implement result aggregation (SAT if any subproblem is SAT)
-- [ ] Test with mixed theory examples
+### 2.6 Main Solver Integration ✓ COMPLETE
+- [x] Implement UnifiedSolver as main entry point
+- [x] Implement automatic theory detection (T_A, T_cons, T_E)
+- [x] Implement intelligent routing to appropriate procedures
+- [x] Provide clean public API (checkSat, isSatisfiable)
+- [x] Test with pure theories (T_E, T_cons, T_A)
+- [x] Test with mixed theory examples
+- [x] Test with all three theories combined
 
 ---
 
 ## Phase 3: Input/Output & Interface (Week 7-8)
 
-### 3.1 Input Parser
-- [ ] Design input language/format for literal sets
-- [ ] Implement lexer for tokenization
-- [ ] Implement parser for expressions
-- [ ] Handle free predicate symbols transformation
-- [ ] Handle free variables
-- [ ] Support reading from files (stdin or file argument)
-- [ ] Add error handling for malformed input
+### 3.1 Input Parser ✓ COMPLETE
+- [x] Design input language/format for literal sets
+- [x] Implement lexer for tokenization (`solver.parser.Lexer`)
+- [x] Implement parser for expressions (`solver.parser.Parser`)
+- [x] Handle free predicate symbols transformation (`solver.parser.PredicateTransformer`)
+- [x] Handle free variables (all simple identifiers treated as variables)
+- [x] Support reading from files (stdin or file argument) (`solver.parser.InputReader`)
+- [x] Add error handling for malformed input (LexerException, ParseException with line/column)
 
-### 3.2 Output Formatter
-- [ ] Implement SAT/UNSAT output
-- [ ] Optional: Show equivalence classes for SAT cases
-- [ ] Optional: Show conflict explanation for UNSAT cases
-- [ ] Add timing/statistics output
+### 3.2 Output Formatter ✓ COMPLETE
+- [x] Implement SAT/UNSAT output
+- [x] Optional: Show equivalence classes for SAT cases
+- [x] Optional: Show conflict explanation for UNSAT cases
+- [x] Add timing/statistics output
 
 ### 3.3 Optional: SMT-LIB Parser
 - [ ] Study SMT-LIB format (QF-UF benchmarks)
@@ -227,12 +227,12 @@
 
 ### Must Have
 - [x] Language: Java, C++, C, Rust, OCaml, or Standard ML
-- [ ] Implements CC algorithm with largest ccpar optimization
-- [ ] Implements T_E-procedure
-- [ ] Implements T_cons-procedure
-- [ ] Implements T_A-procedure (store decomposition + select processing)
-- [ ] Handles mixed theories correctly
-- [ ] stdin/stdout or simple GUI interface
+- [x] Implements CC algorithm with largest ccpar optimization
+- [x] Implements T_E-procedure
+- [x] Implements T_cons-procedure
+- [x] Implements T_A-procedure (store decomposition + select processing)
+- [x] Handles mixed theories correctly
+- [x] stdin/stdout interface with file support and help system
 - [ ] Comprehensive test suite from books/papers
 - [ ] Report (max 6 pages, 11pt, NO AI generated)
 - [ ] Archive with source, tests, outputs, README, executable
