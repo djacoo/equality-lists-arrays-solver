@@ -107,7 +107,87 @@
 
 ---
 
-## Phase 4: Testing & Experimentation (Week 8-9)
+## Phase 3.5: Repository Reorganization & Cleanup (Week 8) ✓ COMPLETE
+
+### 3.5.1 Code Organization ✓ COMPLETE
+- [x] Review current source code structure in `src/main/java/solver/`
+- [x] Ensure consistent package organization and naming
+- [x] Verify logical grouping of related classes
+- [x] Check for any misplaced files or classes
+- [x] Review and organize test code in `src/test/java/solver/`
+- [x] Ensure test classes are properly paired with source classes
+
+### 3.5.2 Documentation Organization ✓ COMPLETE
+- [x] Consolidate all documentation in `docs/` directory
+- [x] Create clear hierarchy for different doc types:
+  - [x] Architecture and design docs
+  - [x] API and usage documentation
+  - [x] Development guides and planning docs
+- [x] Update README.md with accurate project structure
+- [x] Add/update documentation index in docs/
+- [x] Ensure all doc cross-references are correct
+- [x] Remove duplicate or outdated documentation
+
+### 3.5.3 Test Files Organization ✓ COMPLETE
+- [x] Review test input file organization in `tests/input/`
+- [x] Organize tests by theory (T_E, T_cons, T_A, combined)
+- [x] Ensure consistent naming conventions for test files
+- [x] Verify SMT-LIB tests are properly organized in `tests/input/smtlib/`
+- [x] Update TEST_INDEX.md with accurate descriptions
+- [x] Create expected output files if missing (documented in file names and headers)
+- [x] Document test file sources and purposes (documented in file headers and TEST_INDEX.md)
+
+### 3.5.4 Cleanup & Maintenance ✓ COMPLETE
+- [x] Remove build artifacts from version control (if any)
+- [x] Clean up `.DS_Store` and other OS-specific files
+- [x] Update `.gitignore` for comprehensive coverage
+- [x] Remove empty or unused directories
+- [x] Check for and remove commented-out code blocks
+- [x] Verify no debug or temporary files are committed
+- [x] Review and clean up any TODO comments in code
+
+### 3.5.5 Build & Dependencies ✓ COMPLETE
+- [x] Review `pom.xml` for accuracy and completeness
+- [x] Ensure all dependencies are necessary and up-to-date
+- [x] Verify Maven build configuration is optimal
+- [x] Check plugin versions and configurations
+- [x] Ensure proper jar naming and manifest configuration
+
+### 3.5.6 Project Structure Documentation ✓ COMPLETE
+- [x] Create/update CONTRIBUTING.md with development guidelines
+- [x] Document project directory structure clearly
+- [x] Add code style and naming conventions guide
+- [x] Document git workflow and branching strategy
+- [x] Create quick-start guide for new developers
+
+### 3.5.7 Verification & Testing ✓ COMPLETE
+- [x] Run full Maven build: `mvn clean compile`
+- [x] Execute all unit tests: `mvn test`
+- [x] Verify standalone JAR builds correctly: `mvn package`
+- [x] Test solver with sample inputs
+- [x] Run SMT-LIB parser tests
+- [x] Verify all documentation links work
+- [x] Check that README instructions are accurate
+
+### 3.5.8 Final Preparation for Phase 4 & 5 ✓ COMPLETE
+- [x] Ensure codebase is in clean, maintainable state
+- [x] Verify all core functionality works correctly
+- [x] Confirm test suite is comprehensive and passing
+- [x] Review that documentation accurately reflects implementation
+- [x] Create baseline performance metrics for optimization comparison (deferred to end of development)
+- [x] Tag repository state before moving to Phase 4
+- [x] Check there isn't any mention of AI-usage in the code or documentation
+
+**Goals of this phase:**
+- Clean, professional codebase ready for experimentation
+- Well-organized documentation that's easy to navigate
+- Comprehensive test suite that's easy to extend
+- Solid foundation for performance testing and optimization
+- Repository ready for final report writing and submission
+
+---
+
+## Phase 4: Testing & Experimentation (Week 9)
 
 ### 4.1 Test Suite Development ✓ COMPLETE
 - [x] Collect examples from Bradley & Manna book
@@ -116,6 +196,20 @@
 - [x] Create test cases for each theory (T_E, T_cons, T_A)
 - [x] Create test cases for combined theories
 - [x] Transform formulas from books into literal sets
+
+### 4.1.1 Unit Test Coverage Expansion (Priority from 3.5.1 review)
+- [ ] **PRIORITY 1**: Add comprehensive parser unit tests (currently 0% coverage)
+  - [ ] Add tests for custom format: Lexer, Parser, InputReader, PredicateTransformer
+  - [ ] Add tests for SMT-LIB format: SMTLIBLexer, SMTLIBParser, SMTLIBInputReader
+  - [ ] Add negative/error case tests for malformed input
+- [ ] **PRIORITY 2**: Complete DAG package tests (currently 33% coverage)
+  - [ ] Add VariableTest, ConstantTest, FunctionAppTest, TermTest
+- [ ] **PRIORITY 3**: Complete Equivalence package tests (currently 50% coverage)
+  - [ ] Add EquivalenceClassTest
+- [ ] **PRIORITY 4**: Complete Theory T_E tests (currently 50% coverage)
+  - [ ] Add LiteralTest (equality, disequality, atom, ¬atom)
+- [ ] **PRIORITY 5**: Complete root solver tests (currently 67% coverage)
+  - [ ] Add SMTLIBSolverTest
 
 ### 4.2 Experiments
 - [ ] Run solver on all test cases
@@ -133,7 +227,7 @@
 
 ---
 
-## Phase 5: Optional Optimizations (Week 9-10)
+## Phase 5: Optional Optimizations (Week 10)
 
 ### 5.1 Forbidden List/Set (Optional)
 - [ ] Implement forbidden list/set for merge prevention
@@ -152,9 +246,17 @@
 - [ ] Reduce memory allocations
 - [ ] Consider path compression in FIND
 
+### 5.4 Code Refactoring (Optional - from 3.5.1 review)
+- [ ] Refactor parser package to reduce duplication between custom and SMT-LIB formats
+  - [ ] Extract common tokenization logic into shared base or utilities
+  - [ ] Create abstract base classes for Lexer/Parser if beneficial
+  - [ ] Consider unified Token representation
+- [ ] Add exception hierarchy for better error handling
+- [ ] Consider Builder pattern for complex term construction
+
 ---
 
-## Phase 6: Report Writing (Week 10-11)
+## Phase 6: Report Writing (Week 11)
 
 ### 6.1 Implementation Section
 - [ ] Describe overall architecture
