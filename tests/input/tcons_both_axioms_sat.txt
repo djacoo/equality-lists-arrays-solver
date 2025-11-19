@@ -1,0 +1,8 @@
+# Test case for T_cons: Both car and cdr axioms - SAT
+# Source: Bradley & Manna, Section 9.4
+# Expected: SAT
+# Description: Using both decomposition axioms together
+
+cons(x, y) = l
+car(l) = x
+cdr(l) = y

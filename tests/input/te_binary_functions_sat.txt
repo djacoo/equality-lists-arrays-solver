@@ -1,0 +1,9 @@
+# Test case for T_E: Binary functions - SAT
+# Source: Kroening & Strichman, Decision Procedures
+# Expected: SAT
+# Description: Tests congruence with binary function symbols
+
+f(a, b) = c
+a = x
+b = y
+f(x, y) = c

@@ -1,0 +1,8 @@
+# Test case for T_E: Nested functions - SAT
+# Source: Bradley & Manna, Section 9.3
+# Expected: SAT
+# Description: Multiple levels of function nesting
+
+f(g(a)) = b
+g(a) = c
+f(c) = b

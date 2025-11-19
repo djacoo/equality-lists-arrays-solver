@@ -1,0 +1,7 @@
+# Test case for T_cons: car(cons(x,y)) = x violation - UNSAT
+# Source: Bradley & Manna, Section 9.4, Axiom 5
+# Expected: UNSAT
+# Description: Violating car axiom leads to contradiction
+
+cons(a, b) = l
+car(l) != a

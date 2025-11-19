@@ -1,0 +1,9 @@
+# Test case for T_E: Complex example from Kroening & Strichman
+# Source: Kroening & Strichman, Chapter 1
+# Expected: SAT
+# Description: Complex congruence closure with multiple functions
+
+f(a) = f(b)
+g(f(a), c) = d
+g(f(b), c) = e
+d = e

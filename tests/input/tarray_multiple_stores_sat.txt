@@ -1,0 +1,7 @@
+# Test case for T_A: Multiple stores - SAT
+# Source: Bradley & Manna, Section 9.5
+# Expected: SAT
+# Description: Nested store operations
+
+select(store(store(a, i, v1), j, v2), i) = v1
+i != j

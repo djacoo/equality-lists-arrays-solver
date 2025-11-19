@@ -1,0 +1,13 @@
+# Test case for T_E: Long equality chain - UNSAT
+# Source: General CC testing
+# Expected: UNSAT
+# Description: Long transitive chain with contradiction at end
+
+a = b
+b = c
+c = d
+d = e
+e = f
+f = g
+g = h
+h != a

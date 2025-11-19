@@ -1,0 +1,7 @@
+# Test case for T_E: Congruence Closure - UNSAT
+# Source: Bradley & Manna, Section 9.3, Example 9.2
+# Expected: UNSAT
+# Description: Congruence leads to contradiction
+
+a = b
+f(a) != f(b)

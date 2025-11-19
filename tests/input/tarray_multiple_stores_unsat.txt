@@ -1,0 +1,8 @@
+# Test case for T_A: Multiple stores - UNSAT
+# Source: Bradley & Manna, Section 9.5
+# Expected: UNSAT
+# Description: Nested stores with contradiction
+
+select(store(store(a, i, v1), j, v2), i) = v3
+i != j
+v1 != v3

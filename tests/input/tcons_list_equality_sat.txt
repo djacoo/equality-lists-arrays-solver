@@ -1,0 +1,8 @@
+# Test case for T_cons: List equality - SAT
+# Source: Bradley & Manna, Section 9.4
+# Expected: SAT
+# Description: Two lists are equal if same car and cdr
+
+cons(a, b) = l1
+cons(a, b) = l2
+l1 = l2

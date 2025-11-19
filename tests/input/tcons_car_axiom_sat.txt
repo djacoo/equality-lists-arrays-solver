@@ -1,0 +1,7 @@
+# Test case for T_cons: car(cons(x,y)) = x axiom - SAT
+# Source: Bradley & Manna, Section 9.4, Axiom 5
+# Expected: SAT
+# Description: Basic car decomposition axiom
+
+cons(a, b) = l
+car(l) = a

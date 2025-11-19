@@ -1,0 +1,7 @@
+# Test case for T_A: Read-over-write (different index) - SAT
+# Source: Bradley & Manna, Section 9.5, Axiom 9
+# Expected: SAT
+# Description: i != j implies select(store(a,i,v),j) = select(a,j)
+
+i != j
+select(store(a, i, v), j) = select(a, j)

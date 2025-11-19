@@ -1,0 +1,9 @@
+# Test case for T_cons: Complex list operations - UNSAT
+# Source: Kroening & Strichman
+# Expected: UNSAT
+# Description: List operations with contradiction
+
+cons(a, b) = l1
+cons(c, d) = l2
+car(l1) = car(l2)
+a != c

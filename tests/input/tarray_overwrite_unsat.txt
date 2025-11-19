@@ -1,0 +1,6 @@
+# Test case for T_A: Overwrite same index - UNSAT
+# Source: Kroening & Strichman
+# Expected: UNSAT
+# Description: Last write wins - claiming otherwise is contradiction
+
+select(store(store(a, i, v1), i, v2), i) = v1

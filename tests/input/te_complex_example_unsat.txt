@@ -1,0 +1,9 @@
+# Test case for T_E: Complex example - UNSAT
+# Source: Based on Kroening & Strichman
+# Expected: UNSAT
+# Description: Complex congruence with contradiction
+
+f(a) = f(b)
+g(f(a), c) = d
+g(f(b), c) = e
+d != e

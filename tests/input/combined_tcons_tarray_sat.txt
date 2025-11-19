@@ -1,0 +1,9 @@
+# Test case: Combined T_cons and T_A - SAT
+# Source: Original combination
+# Expected: SAT
+# Description: Lists and arrays together
+
+cons(a, b) = l
+store(arr, i, l) = arr2
+select(arr2, i) = l
+car(select(arr2, i)) = a
