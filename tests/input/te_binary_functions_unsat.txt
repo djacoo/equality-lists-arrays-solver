@@ -1,0 +1,9 @@
+# Test case for T_E: Binary functions - UNSAT
+# Source: Kroening & Strichman, Decision Procedures
+# Expected: UNSAT
+# Description: Binary function congruence with contradiction
+
+f(a, b) = c
+a = x
+b = y
+f(x, y) != c

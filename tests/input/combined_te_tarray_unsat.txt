@@ -1,0 +1,8 @@
+# Test case: Combined T_E and T_A - UNSAT
+# Source: Based on Bradley & Manna
+# Expected: UNSAT
+# Description: Equality with arrays leads to contradiction
+
+store(a, i, v) = b
+select(b, i) = w
+v != w

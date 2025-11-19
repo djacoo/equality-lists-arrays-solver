@@ -1,0 +1,15 @@
+# Test case: Combined T_E, T_cons, and T_A - UNSAT
+# Source: Original combination testing all three theories
+# Expected: UNSAT
+# Description: All three theories with contradiction
+
+# List construction
+cons(x, y) = l1
+
+# Array operations
+store(a, i, l1) = b
+
+# Equality and list operations leading to contradiction
+select(b, i) = l1
+car(select(b, i)) = z
+x != z

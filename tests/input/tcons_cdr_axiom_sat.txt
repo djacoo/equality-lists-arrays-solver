@@ -1,0 +1,7 @@
+# Test case for T_cons: cdr(cons(x,y)) = y axiom - SAT
+# Source: Bradley & Manna, Section 9.4, Axiom 6
+# Expected: SAT
+# Description: Basic cdr decomposition axiom
+
+cons(a, b) = l
+cdr(l) = b

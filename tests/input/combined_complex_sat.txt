@@ -1,0 +1,17 @@
+# Test case: Complex combined theories - SAT
+# Source: Comprehensive integration test
+# Expected: SAT
+# Description: Complex interaction between all theories
+
+# Functions and equality
+f(a) = b
+g(b) = c
+
+# Lists with functions
+cons(f(a), g(b)) = l
+car(l) = b
+cdr(l) = c
+
+# Arrays with lists
+store(arr, i, l) = arr2
+select(arr2, i) = l

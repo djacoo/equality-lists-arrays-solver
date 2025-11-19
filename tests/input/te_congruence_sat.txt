@@ -1,0 +1,7 @@
+# Test case for T_E: Congruence Closure - SAT
+# Source: Bradley & Manna, Section 9.3 (Congruence)
+# Expected: SAT
+# Description: Tests congruence - if a=b then f(a)=f(b)
+
+a = b
+f(a) = c

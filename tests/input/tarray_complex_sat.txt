@@ -1,0 +1,9 @@
+# Test case for T_A: Complex array operations - SAT
+# Source: Bradley & Manna, Section 9.5, Example 9.11
+# Expected: SAT
+# Description: Complex interleaved store and select
+
+store(a, i, v) = b
+store(b, j, w) = c
+select(c, i) = v
+i != j

@@ -109,13 +109,13 @@
 
 ## Phase 4: Testing & Experimentation (Week 8-9)
 
-### 4.1 Test Suite Development
-- [ ] Collect examples from Bradley & Manna book
-- [ ] Collect examples from Kroening & Strichman book
-- [ ] Collect examples from referenced papers
-- [ ] Create test cases for each theory (T_E, T_cons, T_A)
-- [ ] Create test cases for combined theories
-- [ ] Transform formulas from books into literal sets
+### 4.1 Test Suite Development ✓ COMPLETE
+- [x] Collect examples from Bradley & Manna book
+- [x] Collect examples from Kroening & Strichman book
+- [x] Collect examples from referenced papers
+- [x] Create test cases for each theory (T_E, T_cons, T_A)
+- [x] Create test cases for combined theories
+- [x] Transform formulas from books into literal sets
 
 ### 4.2 Experiments
 - [ ] Run solver on all test cases

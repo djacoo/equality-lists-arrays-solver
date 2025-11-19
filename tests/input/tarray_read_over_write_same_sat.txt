@@ -1,0 +1,6 @@
+# Test case for T_A: Read-over-write (same index) - SAT
+# Source: Bradley & Manna, Section 9.5, Axiom 8
+# Expected: SAT
+# Description: select(store(a,i,v),i) = v
+
+select(store(a, i, v), i) = v

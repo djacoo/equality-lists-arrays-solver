@@ -1,0 +1,7 @@
+# Test case for T_A: Read-over-write (same index) violation - UNSAT
+# Source: Bradley & Manna, Section 9.5, Example 9.10
+# Expected: UNSAT
+# Description: Violating read-over-write axiom
+
+select(store(a, i, v), i) = w
+v != w

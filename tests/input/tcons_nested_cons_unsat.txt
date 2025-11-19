@@ -1,0 +1,10 @@
+# Test case for T_cons: Nested cons - UNSAT
+# Source: Bradley & Manna, Section 9.4
+# Expected: UNSAT
+# Description: Nested list construction with contradiction
+
+cons(a, cons(b, c)) = l1
+car(l1) = a
+cdr(l1) = l2
+car(l2) = b
+cdr(l2) != c

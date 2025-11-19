@@ -1,0 +1,9 @@
+# Test case for T_A: Complex array operations - UNSAT
+# Source: Bradley & Manna, Section 9.5
+# Expected: UNSAT
+# Description: Complex operations with contradiction
+
+store(a, i, v) = b
+store(b, j, w) = c
+select(c, i) != v
+i != j

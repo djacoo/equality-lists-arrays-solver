@@ -1,0 +1,13 @@
+# Test case: Complex combined theories - UNSAT
+# Source: Comprehensive integration test
+# Expected: UNSAT
+# Description: Complex interaction with contradiction
+
+# Functions and equality
+f(a) = b
+g(b) = c
+
+# Lists with functions
+cons(f(a), g(b)) = l
+car(l) = x
+b != x

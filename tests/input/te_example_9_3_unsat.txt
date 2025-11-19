@@ -1,0 +1,8 @@
+# Test case for T_E: Deep congruence - UNSAT
+# Source: Based on Bradley & Manna, Section 9.3
+# Expected: UNSAT
+# Description: Nested function applications with contradiction
+
+f(f(f(a))) = a
+f(f(f(f(f(a))))) = a
+f(a) != a
