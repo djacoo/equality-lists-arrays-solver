@@ -1,0 +1,9 @@
+# Test case: Combined T_E and T_cons - SAT
+# Source: Based on Bradley & Manna, Sections 9.3 and 9.4
+# Expected: SAT
+# Description: Equality reasoning with list operations
+
+cons(a, b) = l1
+cons(a, b) = l2
+l1 = l2
+car(l1) = car(l2)

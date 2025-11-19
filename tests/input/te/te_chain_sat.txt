@@ -1,0 +1,12 @@
+# Test case for T_E: Long equality chain - SAT
+# Source: General CC testing
+# Expected: SAT
+# Description: Tests long transitive equality chain
+
+a = b
+b = c
+c = d
+d = e
+e = f
+f = g
+g = h

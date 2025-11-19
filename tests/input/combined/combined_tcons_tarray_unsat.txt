@@ -1,0 +1,9 @@
+# Test case: Combined T_cons and T_A - UNSAT
+# Source: Original combination
+# Expected: UNSAT
+# Description: Lists and arrays with contradiction
+
+cons(a, b) = l
+store(arr, i, l) = arr2
+select(arr2, i) = l
+car(select(arr2, i)) != a

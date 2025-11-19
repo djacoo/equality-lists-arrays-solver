@@ -1,0 +1,7 @@
+# Test case for T_cons: cdr(cons(x,y)) = y violation - UNSAT
+# Source: Bradley & Manna, Section 9.4, Axiom 6
+# Expected: UNSAT
+# Description: Violating cdr axiom leads to contradiction
+
+cons(a, b) = l
+cdr(l) != b

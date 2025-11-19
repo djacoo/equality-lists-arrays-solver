@@ -1,0 +1,6 @@
+# Test case for T_A: Overwrite same index - SAT
+# Source: Kroening & Strichman
+# Expected: SAT
+# Description: Last write wins when overwriting same index
+
+select(store(store(a, i, v1), i, v2), i) = v2

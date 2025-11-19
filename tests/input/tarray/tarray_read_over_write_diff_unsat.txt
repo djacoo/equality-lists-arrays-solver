@@ -1,0 +1,7 @@
+# Test case for T_A: Read-over-write (different index) violation - UNSAT
+# Source: Bradley & Manna, Section 9.5
+# Expected: UNSAT
+# Description: Violating read-over-write with different indices
+
+i != j
+select(store(a, i, v), j) != select(a, j)

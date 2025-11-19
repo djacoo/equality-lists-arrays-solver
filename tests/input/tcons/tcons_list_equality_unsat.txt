@@ -1,0 +1,8 @@
+# Test case for T_cons: List inequality - UNSAT
+# Source: Bradley & Manna, Section 9.4
+# Expected: UNSAT
+# Description: Same car and cdr but lists claimed unequal
+
+cons(a, b) = l1
+cons(a, b) = l2
+l1 != l2

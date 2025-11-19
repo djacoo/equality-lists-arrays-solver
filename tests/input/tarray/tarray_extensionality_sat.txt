@@ -1,0 +1,7 @@
+# Test case for T_A: Array extensionality - SAT
+# Source: Kroening & Strichman, Chapter 3
+# Expected: SAT
+# Description: Arrays equal if all reads equal
+
+store(a, i, v) = b
+select(a, i) = v

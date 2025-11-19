@@ -1,0 +1,9 @@
+# Test case for T_E: Example 9.2 from Bradley & Manna
+# Source: Bradley & Manna, Section 9.3, Example 9.2 (modified for SAT)
+# Expected: SAT
+# Description: Complex congruence closure example
+
+a = b
+b = c
+f(a) = g(c)
+g(b) = d

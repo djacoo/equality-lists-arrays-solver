@@ -15,21 +15,9 @@ public class MainTest {
         assertTrue(true, "JUnit is working");
     }
 
-    @Test
-    public void testBasicEquality() {
-        // TODO: Implement when T_E-procedure is ready
-        assertTrue(true, "T_E tests will be added in Phase 2");
-    }
-
-    @Test
-    public void testListTheory() {
-        // TODO: Implement when T_cons-procedure is ready
-        assertTrue(true, "T_cons tests will be added in Phase 2");
-    }
-
-    @Test
-    public void testArrayTheory() {
-        // TODO: Implement when T_A-procedure is ready
-        assertTrue(true, "T_A tests will be added in Phase 2");
-    }
+    // Note: Theory-specific tests are in:
+    // - TEProcedureTest for Theory of Equality (T_E)
+    // - TConsProcedureTest for Theory of Lists (T_cons)
+    // - TArrayProcedureTest for Theory of Arrays (T_A)
+    // - UnifiedSolverTest for combined theory tests
 }

@@ -1,0 +1,18 @@
+# Test case: Combined T_E, T_cons, and T_A - SAT
+# Source: Original combination testing all three theories
+# Expected: SAT
+# Description: All three theories working together
+
+# List construction
+cons(x, y) = l1
+cons(x, y) = l2
+
+# Array operations
+store(a, i, l1) = b
+store(a, i, l2) = c
+
+# Equality reasoning
+l1 = l2
+b = c
+select(b, i) = l1
+car(select(c, i)) = x

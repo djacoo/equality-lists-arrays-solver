@@ -1,0 +1,9 @@
+# Test case: Combined T_E and T_cons - UNSAT
+# Source: Based on Bradley & Manna
+# Expected: UNSAT
+# Description: Equality reasoning with lists leads to contradiction
+
+cons(a, b) = l1
+cons(c, d) = l2
+car(l1) = car(l2)
+a != c

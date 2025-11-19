@@ -1,0 +1,12 @@
+# Test case for T_A: Three nested stores - SAT
+# Source: General testing
+# Expected: SAT
+# Description: Triple nested store operations
+
+store(store(store(a, i, v1), j, v2), k, v3) = b
+i != j
+j != k
+i != k
+select(b, i) = v1
+select(b, j) = v2
+select(b, k) = v3

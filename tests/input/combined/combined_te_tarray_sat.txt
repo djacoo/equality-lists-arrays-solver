@@ -1,0 +1,9 @@
+# Test case: Combined T_E and T_A - SAT
+# Source: Based on Bradley & Manna, Sections 9.3 and 9.5
+# Expected: SAT
+# Description: Equality with arrays
+
+store(a, i, v) = b
+store(a, i, v) = c
+b = c
+select(b, i) = select(c, i)
