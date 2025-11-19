@@ -14,6 +14,8 @@ This document catalogs all test cases in the test suite, organized by theory and
 
 ## Theory of Equality (T_E) Tests
 
+**Location:** `tests/input/te/`
+
 ### SAT Cases
 
 | Test File | Source | Description |
@@ -42,6 +44,8 @@ This document catalogs all test cases in the test suite, organized by theory and
 
 ## Theory of Lists (T_cons) Tests
 
+**Location:** `tests/input/tcons/`
+
 ### SAT Cases
 
 | Test File | Source | Description |
@@ -68,6 +72,8 @@ This document catalogs all test cases in the test suite, organized by theory and
 ---
 
 ## Theory of Arrays (T_A) Tests
+
+**Location:** `tests/input/tarray/`
 
 ### SAT Cases
 
@@ -97,6 +103,8 @@ This document catalogs all test cases in the test suite, organized by theory and
 
 ## Combined Theory Tests
 
+**Location:** `tests/input/combined/`
+
 ### SAT Cases
 
 | Test File | Source | Description |
@@ -116,6 +124,27 @@ This document catalogs all test cases in the test suite, organized by theory and
 | `combined_tcons_tarray_unsat.txt` | Original combination | Lists and arrays with contradiction |
 | `combined_all_three_unsat.txt` | Original combination | All three theories with contradiction |
 | `combined_complex_unsat.txt` | Comprehensive integration test | Complex interaction with contradiction |
+
+---
+
+## SMT-LIB Format Tests
+
+**Location:** `tests/input/smtlib/`
+
+These tests use the SMT-LIB 2.0 format and are designed for the QF_UF (Quantifier-Free Uninterpreted Functions) logic.
+
+| Test File | Expected Result | Description |
+|-----------|----------------|-------------|
+| `simple_sat.smt2` | SAT | Basic satisfiable example with transitivity |
+| `simple_unsat.smt2` | UNSAT | Basic unsatisfiable example with contradiction |
+| `function_sat.smt2` | SAT | Function application example |
+| `congruence_unsat.smt2` | UNSAT | Congruence closure leads to contradiction |
+| `lists_sat.smt2` | SAT | List theory example with cons/car/cdr |
+
+**Running SMT-LIB tests:**
+```bash
+java -cp target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar solver.SMTLIBSolver tests/input/smtlib/<filename>.smt2
+```
 
 ---
 
@@ -171,14 +200,17 @@ This document catalogs all test cases in the test suite, organized by theory and
 To run all tests and verify expected results:
 
 ```bash
-# Run a single test
-./solver tests/input/test_te_sat.txt
+# Run a single test (custom format)
+java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar < tests/input/te/test_te_sat.txt
 
-# Run all tests (if test script exists)
-./run_tests.sh
+# Run a single SMT-LIB test
+java -cp target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar solver.SMTLIBSolver tests/input/smtlib/simple_sat.smt2
+
+# Run all unit tests
+mvn test
 
 # Check expected vs actual results
-# Compare output against expected SAT/UNSAT in file headers
+# Compare output against expected SAT/UNSAT in file names and headers
 ```
 
 ---

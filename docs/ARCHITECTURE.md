@@ -223,19 +223,23 @@ Algorithm: MainSolver.solve(Set<Literal> literals)
 
 ### 6. Parser Package (`solver.parser`)
 
-**Purpose:** Parses input literal sets from text format.
+**Purpose:** Parses input literal sets from multiple text formats.
 
 **Components:**
-- **Lexer**: Tokenizes input string into tokens (identifiers, operators, parentheses)
+- **Lexer**: Tokenizes custom format input into tokens (identifiers, operators, parentheses)
 - **Parser**: Builds AST from tokens and creates Literal objects
-- **InputFormat**: Defines the input language grammar
-- **ParseException**: Error handling for malformed input
+- **SMTLIBLexer**: Tokenizes SMT-LIB 2.0 format input
+- **SMTLIBParser**: Parses SMT-LIB QF_UF logic formulas
+- **InputReader / SMTLIBInputReader**: File and stdin handling
+- **ParseException / LexerException**: Error handling for malformed input
 
 **Design Decisions:**
-- Support simple S-expression-like syntax
-- Allow comments with `#` or `//`
+- Support custom S-expression-like syntax for simple use cases
+- Support standard SMT-LIB 2.0 format for compatibility
+- Allow comments with `#` or `//` in custom format
 - Support multiple literals per line or one per line
-- See [INPUT_FORMAT.md](INPUT_FORMAT.md) for complete specification
+- See [INPUT_FORMAT.md](INPUT_FORMAT.md) for custom format specification
+- See [SMTLIB_PARSER.md](SMTLIB_PARSER.md) for SMT-LIB format details
 
 ---
 
