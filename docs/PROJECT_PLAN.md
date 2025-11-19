@@ -100,10 +100,10 @@
 - [x] Optional: Show conflict explanation for UNSAT cases
 - [x] Add timing/statistics output
 
-### 3.3 Optional: SMT-LIB Parser
-- [ ] Study SMT-LIB format (QF-UF benchmarks)
-- [ ] Implement subset parser for QF-UF
-- [ ] Test with SMT-LIB benchmarks from Zenodo
+### 3.3 Optional: SMT-LIB Parser ✓ COMPLETE
+- [x] Study SMT-LIB format (QF-UF benchmarks)
+- [x] Implement subset parser for QF-UF
+- [x] Test with SMT-LIB benchmarks from Zenodo
 
 ---
 
