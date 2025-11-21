@@ -113,7 +113,11 @@ public class Parser {
     }
 
     /**
-     * Parses an equality or disequality: term = term | term != term
+     * Parses an equality, disequality, or comparison:
+     * term = term | term != term | term < term | term <= term | term > term | term >= term
+     *
+     * Comparison operators are internally converted to equalities with uninterpreted predicates:
+     * x <= y becomes <=(x, y) = true
      */
     private Literal parseEqualityOrDisequality() throws ParseException {
         Term left = parseTerm();
@@ -126,20 +130,61 @@ public class Parser {
             advance();  // Consume '!='
             Term right = parseTerm();
             return Literal.disequality(left, right);
+        } else if (check(Token.TokenType.IDENTIFIER) && isComparisonOperator(peek().getValue())) {
+            // Handle comparison operators as top-level relational operators
+            // Convert "x <= y" to "<=(x, y) = true"
+            String operator = advance().getValue();
+            Term right = parseTerm();
+
+            // Create comparison term: op(left, right)
+            List<Term> arguments = new ArrayList<>();
+            arguments.add(left);
+            arguments.add(right);
+            Term comparisonTerm = termFactory.createFunctionApp(operator, arguments);
+
+            // Create the constant 'true'
+            Term trueTerm = termFactory.createVariable("true");
+
+            // Return equality: op(left, right) = true
+            return Literal.equality(comparisonTerm, trueTerm);
         } else {
             throw new ParseException(
-                String.format("Expected '=' or '!=' at line %d, column %d",
+                String.format("Expected '=', '!=', or comparison operator at line %d, column %d",
                     peek().getLine(), peek().getColumn())
             );
         }
     }
 
     /**
-     * Parses a term: identifier | function(arg1, arg2, ...)
+     * Parses a term: identifier | function(arg1, arg2, ...) | infix expression
      *
-     * Term ::= Identifier | Identifier '(' ArgList ')'
+     * Term ::= PrimaryTerm [InfixOp PrimaryTerm]
+     * PrimaryTerm ::= Identifier | Identifier '(' ArgList ')'
+     * InfixOp ::= '+' | '-' | '*' | '/' | '%' | '<' | '<=' | '>' | '>='
      */
     private Term parseTerm() throws ParseException {
+        Term left = parsePrimaryTerm();
+
+        // Check for infix operators (arithmetic or comparison)
+        // These are treated as uninterpreted binary functions
+        if (check(Token.TokenType.IDENTIFIER) && isInfixOperator(peek().getValue())) {
+            String operator = advance().getValue();
+            Term right = parsePrimaryTerm();
+
+            // Convert infix notation to prefix: "x + y" becomes "+(x, y)"
+            List<Term> arguments = new ArrayList<>();
+            arguments.add(left);
+            arguments.add(right);
+            return termFactory.createFunctionApp(operator, arguments);
+        }
+
+        return left;
+    }
+
+    /**
+     * Parses a primary term (no infix operators).
+     */
+    private Term parsePrimaryTerm() throws ParseException {
         if (!check(Token.TokenType.IDENTIFIER)) {
             throw new ParseException(
                 String.format("Expected identifier at line %d, column %d",
@@ -180,6 +225,25 @@ public class Parser {
             // Constants would be represented as nullary functions: c()
             return termFactory.createVariable(name);
         }
+    }
+
+    /**
+     * Checks if a token value represents an arithmetic infix operator.
+     * These operators are treated as uninterpreted binary functions.
+     * Note: Comparison operators are handled separately at the literal level.
+     */
+    private boolean isInfixOperator(String value) {
+        return value.equals("+") || value.equals("-") || value.equals("*") ||
+               value.equals("/") || value.equals("%");
+    }
+
+    /**
+     * Checks if a token value represents a comparison operator.
+     * These can be used as top-level relational operators (like = and !=).
+     */
+    private boolean isComparisonOperator(String value) {
+        return value.equals("<") || value.equals("<=") ||
+               value.equals(">") || value.equals(">=");
     }
 
     /**

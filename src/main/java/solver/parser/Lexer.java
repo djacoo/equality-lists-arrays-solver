@@ -87,8 +87,29 @@ public class Lexer {
                 return consumeSingleChar(Token.TokenType.EQUALS);
             case '¬':  // Unicode negation symbol
                 return consumeSingleChar(Token.TokenType.NOT);
+            case '<':
+                // Check for <= or treat as uninterpreted symbol
+                if (peekNext() == '=') {
+                    return consumeOperatorAsIdentifier("<=");
+                } else {
+                    return consumeOperatorAsIdentifier("<");
+                }
+            case '>':
+                // Check for >= or treat as uninterpreted symbol
+                if (peekNext() == '=') {
+                    return consumeOperatorAsIdentifier(">=");
+                } else {
+                    return consumeOperatorAsIdentifier(">");
+                }
+            case '+':
+            case '-':
+            case '*':
+            case '/':
+            case '%':
+                // Treat arithmetic operators as uninterpreted function symbols
+                return consumeOperatorAsIdentifier(String.valueOf(c));
             default:
-                if (isIdentifierStart(c)) {
+                if (isIdentifierStart(c) || Character.isDigit(c)) {
                     return consumeIdentifier();
                 } else {
                     throw new LexerException(
@@ -99,7 +120,8 @@ public class Lexer {
     }
 
     /**
-     * Consumes an identifier or keyword.
+     * Consumes an identifier, keyword, or numeric literal.
+     * Numbers are treated as constant identifiers.
      */
     private Token consumeIdentifier() {
         int startLine = line;
@@ -142,6 +164,23 @@ public class Lexer {
         char c1 = advance();
         char c2 = advance();
         return new Token(type, String.valueOf(c1) + c2, startLine, startColumn);
+    }
+
+    /**
+     * Consumes an operator symbol and treats it as an uninterpreted function identifier.
+     * This allows arithmetic operators like +, -, *, /, <, <=, etc. to be used as
+     * uninterpreted function symbols, as specified in the assignment.
+     */
+    private Token consumeOperatorAsIdentifier(String op) {
+        int startLine = line;
+        int startColumn = column;
+
+        // Advance past the operator character(s)
+        for (int i = 0; i < op.length(); i++) {
+            advance();
+        }
+
+        return new Token(Token.TokenType.IDENTIFIER, op, startLine, startColumn);
     }
 
     /**
