@@ -4,3 +4,4 @@
 # Description: Last write wins - claiming otherwise is contradiction
 
 select(store(store(a, i, v1), i, v2), i) = v1
+v1 != v2
