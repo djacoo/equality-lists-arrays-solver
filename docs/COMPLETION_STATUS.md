@@ -339,6 +339,7 @@
 
 ---
 
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 ### Phase 2.6: Main Solver Integration - 100% COMPLETE ✓
 
 #### Implemented Components
@@ -378,6 +379,8 @@
 
 ---
 
+=======
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 ## Implementation Statistics
 
 ### Code Metrics
@@ -403,7 +406,11 @@ Source Files (src/main/java):
 - solver.theory.tcons.TConsProcedure
 - solver.theory.tarray.TArraySymbols
 - solver.theory.tarray.TArrayProcedure
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 Total: 20 files
+=======
+Total: 19 files
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 
 Test Files (src/test/java):
 - solver.MainTest
@@ -419,9 +426,15 @@ Test Files (src/test/java):
 - solver.theory.tcons.TConsProcedureTest
 - solver.theory.tarray.TArraySymbolsTest
 - solver.theory.tarray.TArrayProcedureTest
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 Total: 13 files
 
 Tests: 188 passing (0 failures, 0 errors)
+=======
+Total: 12 files
+
+Tests: 165 passing (0 failures, 0 errors)
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 ```
 
 ### Key Algorithm Features Implemented
@@ -459,15 +472,19 @@ Tests: 188 passing (0 failures, 0 errors)
 - Issue #37: Store decomposition logic - Closed via PR #40
 - Issue #38: T_A-procedure main solver - Closed via PR #40
 
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 **Phase 2.6 Issues:**
 - Issue #42: Main solver integration - Closed via PR #43
 
+=======
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 **All PRs merged to `develop` branch**
 
 ---
 
 ## Next Steps (Remaining Work)
 
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 ### Phase 3: Input/Output & Interface - NEXT
 - [ ] Design and implement input parser for literal sets
 - [ ] Implement lexer for tokenization
@@ -478,6 +495,18 @@ Tests: 188 passing (0 failures, 0 errors)
 - [ ] Optional: Show equivalence classes for SAT cases
 - [ ] Optional: Show conflict explanation for UNSAT cases
 - [ ] Optional: SMT-LIB parser for QF-UF benchmarks
+=======
+### Phase 2.6: Main Solver Integration - NEXT
+- [ ] Orchestrate all theory procedures (T_E, T_cons, T_A)
+- [ ] Implement theory detection and routing
+- [ ] Implement result aggregation
+- [ ] Test with mixed theory examples
+
+### Phase 3: Input/Output & Interface
+- [ ] Input parser for literal sets
+- [ ] Output formatter
+- [ ] Optional SMT-LIB parser
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 
 ### Phase 4: Testing & Experimentation
 - [ ] Collect examples from books/papers
@@ -519,6 +548,7 @@ Tests: 188 passing (0 failures, 0 errors)
 mvn clean test
 
 # Expected output
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 Tests run: 188, Failures: 0, Errors: 0, Skipped: 0
 
 # Count source files
@@ -528,6 +558,17 @@ find src/main/java -name "*.java" | wc -l
 # Count test files
 find src/test/java -name "*.java" | wc -l
 # Output: 13
+=======
+Tests run: 165, Failures: 0, Errors: 0, Skipped: 0
+
+# Count source files
+find src/main/java -name "*.java" | wc -l
+# Output: 19
+
+# Count test files
+find src/test/java -name "*.java" | wc -l
+# Output: 12
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 
 # View project structure
 tree src/
@@ -538,7 +579,11 @@ tree src/
 ## Current Branch Status
 
 - **Main branch:** Phase 1 complete (stable milestone)
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 - **Develop branch:** Active development, **Phase 2 COMPLETE (100%)** ✓
+=======
+- **Develop branch:** Active development, Phase 2.1-2.5 complete (83%)
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 - **Feature branches:** Merged and deleted after PR completion
 
 **Git workflow:** Feature branch → PR → Review → Merge to develop → Close issue
@@ -557,6 +602,7 @@ tree src/
 
 ### Milestone 2: Phase 2 - Core Implementation ✓ CLOSED
 - **Due:** December 20, 2025
+<<<<<<< HEAD:docs/COMPLETION_STATUS.md
 - **Closed:** November 15, 2025
 - **Progress:** All tasks complete (6/6 subtasks, 100%)
 - **Status:** Complete
@@ -567,6 +613,11 @@ tree src/
   - T_cons-procedure (list theory)
   - T_A-procedure (array theory)
   - UnifiedSolver (main interface)
+=======
+- **Created:** November 14, 2025
+- **Progress:** Tasks 2.1-2.5 complete (5/6 subtasks, 83%)
+- **Next:** Main solver integration (Phase 2.6)
+>>>>>>> origin/docs/update-phase-2.5-completion:COMPLETION_STATUS.md
 
 ### Future Milestones (Planned)
 - Milestone 3: Phase 3 - Input/Output & Interface
