@@ -347,7 +347,7 @@
 - [x] Implements T_A-procedure (store decomposition + select processing)
 - [x] Handles mixed theories correctly
 - [x] stdin/stdout interface with file support and help system
-- [ ] Comprehensive test suite from books/papers
+- [x] Comprehensive test suite from books/papers
 - [ ] Report (max 6 pages, 11pt, NO AI generated)
 - [ ] Archive with source, tests, outputs, README, executable
 - [ ] Double-sided printed report
