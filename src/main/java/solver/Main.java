@@ -47,6 +47,15 @@ import java.util.List;
  */
 public class Main {
 
+    // ANSI Color codes
+    private static final String RESET = "\033[0m";
+    private static final String GREEN = "\033[1;32m";
+    private static final String RED = "\033[1;31m";
+    private static final String YELLOW = "\033[1;33m";
+    private static final String CYAN = "\033[1;36m";
+    private static final String BLUE = "\033[1;34m";
+    private static final String BOLD = "\033[1m";
+
     public static void main(String[] args) {
         // Check for help flag
         if (args.length > 0 && (args[0].equals("-h") || args[0].equals("--help"))) {
@@ -54,8 +63,7 @@ public class Main {
             return;
         }
 
-        System.out.println("Equality, Lists, and Arrays Solver");
-        System.out.println("Based on Bradley & Manna, Sections 9.3-9.5");
+        printBanner();
         System.out.println();
 
         try {
@@ -67,7 +75,7 @@ public class Main {
             List<Literal> literals;
             if (args.length == 0) {
                 // Read from stdin
-                System.out.println("Reading from stdin (Ctrl+D or Ctrl+Z to finish)...");
+                System.out.println("Reading from stdin (press Enter twice to finish)...");
                 System.out.println();
                 literals = reader.readFromStdin();
             } else {
@@ -79,7 +87,7 @@ public class Main {
             }
 
             // Display parsed literals
-            System.out.println("Parsed " + literals.size() + " literal(s):");
+            System.out.println(CYAN + "Parsed " + literals.size() + " literal(s):" + RESET);
             for (int i = 0; i < literals.size(); i++) {
                 System.out.println("  " + (i + 1) + ". " + literals.get(i));
             }
@@ -92,21 +100,27 @@ public class Main {
             long endTime = System.nanoTime();
             double elapsedMs = (endTime - startTime) / 1_000_000.0;
 
-            // Display result
-            System.out.println("Result: " + (result.isSat() ? "SAT" : "UNSAT"));
-            System.out.println("Time: " + String.format("%.3f ms", elapsedMs));
+            // Display result with colors
+            String resultColor = result.isSat() ? GREEN : RED;
+            String resultText = result.isSat() ? "SAT" : "UNSAT";
+            System.out.println(BOLD + "Result: " + resultColor + resultText + RESET);
+            System.out.println(YELLOW + "Time: " + String.format("%.3f ms", elapsedMs) + RESET);
             System.out.println();
 
             if (result.isSat()) {
-                System.out.println("The literal set is SATISFIABLE.");
+                System.out.println(GREEN + "✓ The literal set is SATISFIABLE." + RESET);
+                System.out.println("  This means there exists a model that satisfies all constraints.");
                 if (result.getWitness() != null) {
-                    System.out.println("\nEquivalence classes:");
+                    System.out.println();
+                    System.out.println(CYAN + "Equivalence classes:" + RESET);
                     System.out.println(result.getWitness());
                 }
             } else {
-                System.out.println("The literal set is UNSATISFIABLE.");
+                System.out.println(RED + "✗ The literal set is UNSATISFIABLE." + RESET);
+                System.out.println("  This means no model exists that satisfies all constraints.");
                 if (result.getConflict() != null && !result.getConflict().isEmpty()) {
-                    System.out.println("\nConflict:");
+                    System.out.println();
+                    System.out.println(RED + "Conflict detected:" + RESET);
                     System.out.println(result.getConflict());
                 }
             }
@@ -127,6 +141,23 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    /**
+     * Prints the ASCII art banner.
+     */
+    private static void printBanner() {
+        System.out.println(CYAN + "╔══════════════════════════════════════════════════════════════════════════╗" + RESET);
+        System.out.println(CYAN + "║" + RESET + BOLD + "   ███████╗ ██████╗ ██╗    ██╗   ██╗███████╗██████╗                    " + RESET + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + BOLD + "   ██╔════╝██╔═══██╗██║    ██║   ██║██╔════╝██╔══██╗                   " + RESET + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + BOLD + "   ███████╗██║   ██║██║    ██║   ██║█████╗  ██████╔╝                   " + RESET + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + BOLD + "   ╚════██║██║   ██║██║    ╚██╗ ██╔╝██╔══╝  ██╔══██╗                   " + RESET + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + BOLD + "   ███████║╚██████╔╝███████╗╚████╔╝ ███████╗██║  ██║                   " + RESET + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + BOLD + "   ╚══════╝ ╚═════╝ ╚══════╝ ╚═══╝  ╚══════╝╚═╝  ╚═╝                   " + RESET + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + "                                                                          " + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + YELLOW + "        Equality, Lists, and Arrays Solver                            " + RESET + CYAN + "║" + RESET);
+        System.out.println(CYAN + "║" + RESET + "        Based on Bradley & Manna, Sections 9.3-9.5                    " + CYAN + "║" + RESET);
+        System.out.println(CYAN + "╚══════════════════════════════════════════════════════════════════════════╝" + RESET);
     }
 
     /**

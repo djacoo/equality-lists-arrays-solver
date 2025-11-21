@@ -31,7 +31,7 @@ public class SMTLIBSolver {
                 System.out.println("Reading from file: " + filename);
                 literals = reader.readFromFile(filename);
             } else {
-                System.out.println("Reading from stdin...");
+                System.out.println("Reading from stdin (press Enter twice to finish)...");
                 literals = reader.readFromStdin();
             }
 

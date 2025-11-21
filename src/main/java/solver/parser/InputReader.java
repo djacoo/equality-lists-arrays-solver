@@ -23,6 +23,7 @@ public class InputReader {
 
     /**
      * Reads and parses input from standard input.
+     * Reads until an empty line is encountered (press Enter twice to finish).
      *
      * @return List of parsed literals
      * @throws IOException if reading fails
@@ -35,6 +36,14 @@ public class InputReader {
 
         String line;
         while ((line = reader.readLine()) != null) {
+            // Stop reading if we encounter an empty line
+            if (line.trim().isEmpty() && input.length() > 0) {
+                break;
+            }
+            // Skip empty lines at the beginning
+            if (line.trim().isEmpty()) {
+                continue;
+            }
             input.append(line).append("\n");
         }
 

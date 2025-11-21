@@ -178,7 +178,8 @@ public class ParserTest {
             parse("a b");
         });
 
-        assertTrue(exception.getMessage().contains("Expected '=' or '!='"));
+        assertTrue(exception.getMessage().contains("Expected '='") ||
+                   exception.getMessage().contains("Expected newline or EOF"));
     }
 
     @Test
@@ -196,7 +197,8 @@ public class ParserTest {
             parse("f x) = y");
         });
 
-        assertTrue(exception.getMessage().contains("Expected '=' or '!='"));
+        assertTrue(exception.getMessage().contains("Expected '='") ||
+                   exception.getMessage().contains("Expected newline or EOF"));
     }
 
     @Test

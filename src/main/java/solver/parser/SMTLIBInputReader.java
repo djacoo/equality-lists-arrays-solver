@@ -34,6 +34,7 @@ public class SMTLIBInputReader {
 
     /**
      * Reads SMT-LIB input from stdin.
+     * Reads until an empty line is encountered (press Enter twice to finish).
      *
      * @return List of parsed literals
      * @throws IOException if reading from stdin fails
@@ -45,6 +46,14 @@ public class SMTLIBInputReader {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                // Stop reading if we encounter an empty line
+                if (line.trim().isEmpty() && input.length() > 0) {
+                    break;
+                }
+                // Skip empty lines at the beginning
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 input.append(line).append('\n');
             }
         }
