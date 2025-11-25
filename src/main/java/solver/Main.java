@@ -1,6 +1,7 @@
 package solver;
 
 import solver.dag.TermFactory;
+import solver.equivalence.EquivalenceClass;
 import solver.parser.InputReader;
 import solver.parser.LexerException;
 import solver.parser.ParseException;
@@ -8,6 +9,7 @@ import solver.theory.Result;
 import solver.theory.te.Literal;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -108,21 +110,9 @@ public class Main {
             System.out.println();
 
             if (result.isSat()) {
-                System.out.println(GREEN + "✓ The literal set is SATISFIABLE." + RESET);
-                System.out.println("  This means there exists a model that satisfies all constraints.");
-                if (result.getWitness() != null) {
-                    System.out.println();
-                    System.out.println(CYAN + "Equivalence classes:" + RESET);
-                    System.out.println(result.getWitness());
-                }
+                printSatExplanation(result);
             } else {
-                System.out.println(RED + "✗ The literal set is UNSATISFIABLE." + RESET);
-                System.out.println("  This means no model exists that satisfies all constraints.");
-                if (result.getConflict() != null && !result.getConflict().isEmpty()) {
-                    System.out.println();
-                    System.out.println(RED + "Conflict detected:" + RESET);
-                    System.out.println(result.getConflict());
-                }
+                printUnsatExplanation(result, literals);
             }
 
         } catch (IOException e) {
@@ -140,6 +130,48 @@ public class Main {
             System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             System.exit(1);
+        }
+    }
+
+    /**
+     * Prints a concise explanation for a SAT result.
+     */
+    private static void printSatExplanation(Result result) {
+        System.out.println(GREEN + BOLD + "✓ SAT" + RESET);
+        System.out.println();
+
+        if (result.getWitness().isPresent()) {
+            System.out.println(CYAN + "Model (Equivalence Classes):" + RESET);
+            Collection<EquivalenceClass> witness = result.getWitness().get();
+            int classNum = 1;
+            for (EquivalenceClass ec : witness) {
+                System.out.println("  [" + classNum + "] " + ec);
+                classNum++;
+            }
+            System.out.println();
+        }
+
+        System.out.println(BOLD + "Why SAT:" + RESET);
+        System.out.println("  Congruence closure completed without finding any contradictions.");
+        System.out.println("  All theory axioms (T_E, T_cons, T_A) are satisfied by the model.");
+        System.out.println();
+    }
+
+    /**
+     * Prints a concise explanation for an UNSAT result.
+     */
+    private static void printUnsatExplanation(Result result, List<Literal> literals) {
+        System.out.println(RED + BOLD + "✗ UNSAT" + RESET);
+        System.out.println();
+
+        if (result.getConflict().isPresent()) {
+            System.out.println(BOLD + "Why UNSAT:" + RESET);
+            System.out.println("  " + result.getConflict().get());
+            System.out.println();
+        } else {
+            System.out.println(BOLD + "Why UNSAT:" + RESET);
+            System.out.println("  Congruence closure derived a contradiction.");
+            System.out.println();
         }
     }
 

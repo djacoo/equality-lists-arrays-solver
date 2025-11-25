@@ -89,7 +89,7 @@ if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
     fi
     echo -e "${GREEN}Running test: $TEST_FILE${NC}"
     echo ""
-    java -jar "$JAR" < "$TEST_FILE"
+    java -jar "$JAR" "$TEST_FILE"
     exit 0
 fi
 
@@ -103,13 +103,13 @@ if [ "$1" == "--file" ] || [ "$1" == "-f" ]; then
         echo -e "${RED}Error: File not found: $2${NC}"
         exit 1
     fi
-    java -jar "$JAR" < "$2"
+    java -jar "$JAR" "$2"
     exit 0
 fi
 
 # If a file is provided as first argument (without flag)
 if [ -n "$1" ] && [ -f "$1" ]; then
-    java -jar "$JAR" < "$1"
+    java -jar "$JAR" "$1"
     exit 0
 fi
 
