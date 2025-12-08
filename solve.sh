@@ -89,7 +89,13 @@ if [ "$1" == "--test" ] || [ "$1" == "-t" ]; then
     fi
     echo -e "${GREEN}Running test: $TEST_FILE${NC}"
     echo ""
-    java -jar "$JAR" "$TEST_FILE"
+    OUTPUT=$(java -jar "$JAR" "$TEST_FILE" | tee /dev/tty)
+    if echo "$OUTPUT" | grep -q "SAT"; then
+        if [ -f "ascii.txt" ]; then
+            echo ""
+            cat ascii.txt
+        fi
+    fi
     exit 0
 fi
 
@@ -103,13 +109,25 @@ if [ "$1" == "--file" ] || [ "$1" == "-f" ]; then
         echo -e "${RED}Error: File not found: $2${NC}"
         exit 1
     fi
-    java -jar "$JAR" "$2"
+    OUTPUT=$(java -jar "$JAR" "$2" | tee /dev/tty)
+    if echo "$OUTPUT" | grep -q "SAT"; then
+        if [ -f "ascii.txt" ]; then
+            echo ""
+            cat ascii.txt
+        fi
+    fi
     exit 0
 fi
 
 # If a file is provided as first argument (without flag)
 if [ -n "$1" ] && [ -f "$1" ]; then
-    java -jar "$JAR" "$1"
+    OUTPUT=$(java -jar "$JAR" "$1" | tee /dev/tty)
+    if echo "$OUTPUT" | grep -q "SAT"; then
+        if [ -f "ascii.txt" ]; then
+            echo ""
+            cat ascii.txt
+        fi
+    fi
     exit 0
 fi
 
@@ -121,4 +139,10 @@ if [ -t 0 ]; then
     echo ""
 fi
 
-java -jar "$JAR"
+OUTPUT=$(java -jar "$JAR" | tee /dev/tty)
+if echo "$OUTPUT" | grep -q "SAT"; then
+    if [ -f "ascii.txt" ]; then
+        echo ""
+        cat ascii.txt
+    fi
+fi

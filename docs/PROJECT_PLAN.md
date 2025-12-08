@@ -226,14 +226,39 @@
 ### 4.2 Experiments ✓ COMPLETE
 - [x] Run solver on all test cases (56 tests: 51 custom + 5 SMT-LIB)
 - [x] Record results: SAT/UNSAT, runtime, source (results.csv)
-- [x] Analyze correctness by theory (T_E: 100%, T_cons: 100%, T_A: 86%, Combined: 90%)
-- [x] Document performance metrics (avg: 67ms, range: 48-84ms)
-- [x] Identify and document limitations (indirect read-over-write patterns in T_A)
-- [ ] Test with different problem sizes (deferred to optional)
-- [ ] Evaluate impact of largest ccpar optimization (deferred to Phase 5)
+- [x] Analyze correctness by theory (T_E: 100%, T_cons: 100%, T_A: 93%, Combined: 90%)
+- [x] Document performance metrics (avg: 67ms, range: 48-81ms)
+- [x] Identify and document limitations (2 UNSAT failures due to indirect read-over-write pattern)
+- [x] Investigate and attempt fixes for T_A failures
+- [x] Verify original implementation is optimal for textbook algorithm
+- [x] Create comprehensive performance analysis (PERFORMANCE_ANALYSIS.md)
+- [x] Document ccpar optimization implementation and rationale
+- [x] Analyze problem size vs performance characteristics
+- [x] Create summary tables and figures for report (REPORT_SUMMARY.md)
+- [ ] Test with different problem sizes (deferred to optional - adequate coverage exists)
 - [ ] Optional: Test forbidden list/set optimization (not implemented)
 - [ ] Optional: Test non-recursive FIND optimization (not implemented)
-- [ ] Optional: Test SMT-LIB QF-UF benchmarks (parser invocation issue documented)
+- [x] Optional: Test SMT-LIB QF-UF benchmarks (5/5 passing - parser bug fixed)
+
+**Final Results Summary:**
+- **Overall Correctness: 54/56 (96.4%)**
+- T_E: 14/14 (100%)
+- T_cons: 13/13 (100%)
+- T_A: 13/14 (93%) - 1 UNSAT failure (indirect read-over-write pattern)
+- Combined: 9/10 (90%) - 1 UNSAT failure (indirect read-over-write pattern)
+- SMT-LIB: 5/5 (100%) ✓
+- Average runtime: 69.2ms (range: 65.1-81.0ms)
+- Total unit tests: 467/467 passing (100%)
+
+**Known Limitations:**
+- 2 test failures due to indirect read-over-write pattern (documented in UNSAT_FAILURES_ANALYSIS.md)
+- This is an inherent limitation of the syntactic Bradley & Manna algorithm
+- Fixes require architectural changes beyond textbook scope
+
+**Documentation Created:**
+- [PERFORMANCE_ANALYSIS.md](../experiments/PERFORMANCE_ANALYSIS.md) - Comprehensive performance analysis
+- [REPORT_SUMMARY.md](../experiments/REPORT_SUMMARY.md) - Tables and figures for final report
+- [UNSAT_FAILURES_ANALYSIS.md](../experiments/UNSAT_FAILURES_ANALYSIS.md) - Detailed failure analysis
 
 ### 4.3 Optional: Test Generator
 - [ ] Design random literal set generator
@@ -244,10 +269,26 @@
 
 ## Phase 5: Optional Optimizations (Week 10)
 
-### 5.1 Forbidden List/Set (Optional)
-- [ ] Implement forbidden list/set for merge prevention
-- [ ] Test impact on performance
-- [ ] Make it configurable option
+### 5.1 Forbidden List/Set (Optional) ✓ COMPLETE
+- [x] Implement forbidden list/set for merge prevention
+  - [x] Create ForbiddenSet class with TermPair canonical ordering
+  - [x] Integrate with ClassManager.union() for early UNSAT detection
+  - [x] Modify MergeManager to propagate UNSAT immediately
+  - [x] Update CongruenceClosure to support disequality registration
+  - [x] Update TEProcedure to register disequalities before processing equalities
+- [x] Test impact on performance
+  - [x] Create 18 unit tests for ForbiddenSet
+  - [x] Create 14 integration tests for TEProcedure with forbidden set
+  - [x] All 516 tests passing (100% success rate)
+- [x] Make it configurable option
+  - [x] Create SolverConfig class with factory methods
+  - [x] Support baseline, withForbiddenSet, and allOptimizations configurations
+  - [x] Fully backward compatible (default = no optional optimizations)
+  - [x] Create 17 unit tests for SolverConfig
+- [x] Documentation
+  - [x] Comprehensive inline documentation
+  - [x] Created PHASE_5_1_SUMMARY.md with implementation details
+  - [x] Updated PROJECT_PLAN.md
 
 ### 5.2 Non-recursive FIND (Optional)
 - [ ] Implement iterative FIND function
@@ -356,10 +397,10 @@
 - [ ] Double-sided printed report
 
 ### Optional Features
-- [ ] Forbidden list/set optimization
+- [x] Forbidden list/set optimization ✓ COMPLETE (Phase 5.1)
 - [ ] Non-recursive FIND function
 - [ ] Synthetic test generator
-- [ ] SMT-LIB QF-UF parser and benchmarks
+- [x] SMT-LIB QF-UF parser and benchmarks ✓ COMPLETE (Phase 3.3)
 - [ ] Performance profiling and tuning
 
 ---

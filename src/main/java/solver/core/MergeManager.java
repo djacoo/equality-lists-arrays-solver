@@ -41,20 +41,25 @@ public class MergeManager {
      * MERGE procedure: merges two terms and propagates all congruences.
      *
      * Algorithm:
-     * 1. If t1 and t2 are already in same class, return
+     * 1. If t1 and t2 are already in same class, return true
      * 2. Add (t1, t2) to pending list
      * 3. While pending is not empty:
      *    a. Remove pair (a, b) from pending
-     *    b. UNION(a, b)
+     *    b. UNION(a, b) - if forbidden merge detected, return false immediately
      *    c. For each term in ccpar(a) and ccpar(b):
      *       Find congruent terms and merge them
+     * 4. Return true if all merges succeeded
+     *
+     * @param t1 First term
+     * @param t2 Second term
+     * @return true if merge succeeded, false if a forbidden merge was detected (UNSAT)
      */
-    public void merge(Term t1, Term t2) {
+    public boolean merge(Term t1, Term t2) {
         mergeOperations++;
 
         // Check if already in same class
         if (classManager.areEqual(t1, t2)) {
-            return;
+            return true;
         }
 
         // Add initial pair to pending
@@ -76,7 +81,12 @@ public class MergeManager {
             }
 
             // UNION the two classes
-            classManager.union(a, b);
+            // If forbidden set is enabled and this is a forbidden merge, fail immediately
+            boolean mergeSucceeded = classManager.union(a, b);
+            if (!mergeSucceeded) {
+                // Forbidden merge detected - early UNSAT detection!
+                return false;
+            }
 
             // Propagate congruences:
             // For each parent of a and each parent of b,
@@ -97,6 +107,8 @@ public class MergeManager {
                 }
             }
         }
+
+        return true;  // All merges succeeded
     }
 
     /**

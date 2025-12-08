@@ -1,5 +1,6 @@
 package solver.equivalence;
 
+import solver.config.SolverConfig;
 import solver.dag.Term;
 
 import java.util.*;
@@ -14,6 +15,7 @@ import java.util.*;
  * Implements:
  * - Path compression in FIND for O(α(n)) amortized complexity
  * - Largest ccpar optimization in UNION (MANDATORY requirement)
+ * - Optional: Forbidden set for early UNSAT detection
  */
 public class ClassManager {
     // Maps each term to its current equivalence class
@@ -22,15 +24,37 @@ public class ClassManager {
     // Counter for assigning unique class IDs
     private int nextClassId;
 
+    // Optional: Forbidden set for early UNSAT detection
+    private final ForbiddenSet forbiddenSet;
+    private final boolean useForbiddenSet;
+
     // Statistics
     private int findOperations;
     private int unionOperations;
+    private int forbiddenMergeAttempts;
 
+    /**
+     * Creates a ClassManager with default configuration (no optional optimizations).
+     */
     public ClassManager() {
+        this(new SolverConfig());
+    }
+
+    /**
+     * Creates a ClassManager with the specified configuration.
+     *
+     * @param config Solver configuration specifying which optimizations to enable
+     */
+    public ClassManager(SolverConfig config) {
         this.termToClass = new HashMap<>();
         this.nextClassId = 1;
         this.findOperations = 0;
         this.unionOperations = 0;
+        this.forbiddenMergeAttempts = 0;
+
+        // Initialize forbidden set if enabled
+        this.useForbiddenSet = config.isUseForbiddenSet();
+        this.forbiddenSet = useForbiddenSet ? new ForbiddenSet() : null;
     }
 
     /**
@@ -98,14 +122,34 @@ public class ClassManager {
     }
 
     /**
+     * Registers a disequality (t1 != t2) with the forbidden set.
+     * This should be called for all disequality constraints before processing equalities.
+     * Only has effect if forbidden set optimization is enabled.
+     *
+     * @param t1 First term
+     * @param t2 Second term
+     */
+    public void addDisequality(Term t1, Term t2) {
+        if (useForbiddenSet) {
+            forbiddenSet.addForbiddenPair(t1, t2);
+        }
+    }
+
+    /**
      * UNION: Merges the equivalence classes of t1 and t2.
      *
      * CRITICAL: Implements the MANDATORY largest ccpar optimization.
      * The representative is chosen from the class with the larger ccpar set.
      *
+     * If forbidden set is enabled, checks if the merge is forbidden before proceeding.
+     *
+     * @param t1 First term
+     * @param t2 Second term
+     * @return true if merge succeeded, false if merge is forbidden (UNSAT detected)
+     *
      * Time complexity: O(k) where k = size of smaller class
      */
-    public void union(Term t1, Term t2) {
+    public boolean union(Term t1, Term t2) {
         unionOperations++;
 
         // Get representatives
@@ -114,7 +158,13 @@ public class ClassManager {
 
         // Already in same class?
         if (rep1 == rep2) {
-            return;
+            return true;  // Success (no-op)
+        }
+
+        // OPTIONAL OPTIMIZATION: Check if merge is forbidden
+        if (useForbiddenSet && forbiddenSet.isForbidden(rep1, rep2)) {
+            forbiddenMergeAttempts++;
+            return false;  // UNSAT! Forbidden merge detected
         }
 
         // Get the two classes
@@ -150,6 +200,8 @@ public class ClassManager {
         // Update representatives' find pointers
         rep1.setFind(newRep);
         rep2.setFind(newRep);
+
+        return true;  // Success
     }
 
     /**
@@ -171,6 +223,27 @@ public class ClassManager {
     }
 
     /**
+     * Returns the forbidden set (if enabled).
+     */
+    public ForbiddenSet getForbiddenSet() {
+        return forbiddenSet;
+    }
+
+    /**
+     * Returns true if forbidden set optimization is enabled.
+     */
+    public boolean isUsingForbiddenSet() {
+        return useForbiddenSet;
+    }
+
+    /**
+     * Returns the number of times a forbidden merge was attempted.
+     */
+    public int getForbiddenMergeAttempts() {
+        return forbiddenMergeAttempts;
+    }
+
+    /**
      * Returns statistics about operations performed.
      */
     public String getStats() {
@@ -181,12 +254,25 @@ public class ClassManager {
             .max()
             .orElse(0);
 
-        return String.format(
+        StringBuilder stats = new StringBuilder();
+        stats.append(String.format(
             "Terms: %d, Classes: %d, Max class size: %d, " +
             "FIND ops: %d, UNION ops: %d",
             totalTerms, totalClasses, maxClassSize,
             findOperations, unionOperations
-        );
+        ));
+
+        // Add forbidden set statistics if enabled
+        if (useForbiddenSet) {
+            stats.append(String.format(
+                ", Forbidden pairs: %d, Forbidden checks: %d, Forbidden merges blocked: %d",
+                forbiddenSet.size(),
+                forbiddenSet.getForbiddenChecks(),
+                forbiddenMergeAttempts
+            ));
+        }
+
+        return stats.toString();
     }
 
     @Override

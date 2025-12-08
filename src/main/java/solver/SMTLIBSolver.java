@@ -45,8 +45,19 @@ public class SMTLIBSolver {
             UnifiedSolver solver = new UnifiedSolver();
             Result result = solver.checkSat(literals);
 
-            // Output result (Result.toString() includes all details)
-            System.out.println("\n" + result);
+            // Output result in consistent format
+            String resultText = result.isSat() ? "SAT" : "UNSAT";
+            System.out.println("\nResult: " + resultText);
+
+            // Show additional details
+            if (result.isSat() && result.getWitness().isPresent()) {
+                System.out.println("\nEquivalence Classes:");
+                for (solver.equivalence.EquivalenceClass ec : result.getWitness().get()) {
+                    System.out.println("  " + ec);
+                }
+            } else if (result.isUnsat() && result.getConflict().isPresent()) {
+                System.out.println("\nConflict: " + result.getConflict().get());
+            }
 
         } catch (IOException e) {
             System.err.println("Error reading input: " + e.getMessage());

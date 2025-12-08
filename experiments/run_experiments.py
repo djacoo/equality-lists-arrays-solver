@@ -99,8 +99,8 @@ def run_solver(jar_path: Path, test_file: Path, is_smtlib: bool = False) -> Dict
     # Determine which main class to use
     main_class = "solver.SMTLIBSolver" if is_smtlib else "solver.Main"
 
-    # Prepare command - pass filename as argument instead of using stdin
-    cmd = ['java', '-jar', str(jar_path), str(test_file)]
+    # Prepare command - use -cp and explicit main class for correct parser invocation
+    cmd = ['java', '-cp', str(jar_path), main_class, str(test_file)]
 
     # Run solver and measure time
     start_time = time.perf_counter()

@@ -1,0 +1,13 @@
+# Phase 5.1: Forbidden Set Performance Test
+# Simple test case with early UNSAT detection opportunity
+
+# Test case: a = b = c = d, but a != d
+# This should trigger early UNSAT detection with forbidden set enabled
+
+# Equalities
+a = b
+b = c
+c = d
+
+# Disequality (conflict)
+a != d
