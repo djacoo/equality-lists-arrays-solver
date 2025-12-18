@@ -28,6 +28,9 @@ public class ClassManager {
     private final ForbiddenSet forbiddenSet;
     private final boolean useForbiddenSet;
 
+    // Optional: Non-recursive FIND with path compression
+    private final boolean usePathCompression;
+
     // Statistics
     private int findOperations;
     private int unionOperations;
@@ -55,6 +58,9 @@ public class ClassManager {
         // Initialize forbidden set if enabled
         this.useForbiddenSet = config.isUseForbiddenSet();
         this.forbiddenSet = useForbiddenSet ? new ForbiddenSet() : null;
+
+        // Enable path compression if non-recursive FIND is configured
+        this.usePathCompression = config.isUseNonRecursiveFIND();
     }
 
     /**
@@ -80,30 +86,47 @@ public class ClassManager {
     /**
      * FIND: Returns the representative of the equivalence class containing t.
      *
-     * Implements path compression: updates all find pointers along the path
-     * to point directly to the representative.
+     * If path compression is enabled (usePathCompression=true):
+     * - Uses iterative algorithm with two-pass path compression
+     * - Updates all find pointers along the path to point directly to representative
+     * - Time complexity: O(α(n)) amortized, where α is inverse Ackermann function
      *
-     * Time complexity: O(α(n)) amortized, where α is inverse Ackermann function
+     * Otherwise (baseline):
+     * - Simple iterative traversal without path compression
+     * - Time complexity: O(h) where h is the height of the find tree
+     *
+     * @param t The term to find the representative for
+     * @return The representative of t's equivalence class
      */
     public Term find(Term t) {
         findOperations++;
 
-        // Follow find pointers until we reach representative
-        Term current = t;
-        while (current.getFind() != current) {
-            current = current.getFind();
-        }
+        if (usePathCompression) {
+            // OPTIMIZED VERSION: Iterative with two-pass path compression
+            // First pass: Follow find pointers to the representative
+            Term current = t;
+            while (current.getFind() != current) {
+                current = current.getFind();
+            }
 
-        // Path compression: update find pointers along the path
-        Term representative = current;
-        current = t;
-        while (current != representative) {
-            Term next = current.getFind();
-            current.setFind(representative);
-            current = next;
-        }
+            // Second pass: Path compression - update all find pointers along the path
+            Term representative = current;
+            current = t;
+            while (current != representative) {
+                Term next = current.getFind();
+                current.setFind(representative);
+                current = next;
+            }
 
-        return representative;
+            return representative;
+        } else {
+            // BASELINE VERSION: Simple iterative traversal without path compression
+            Term current = t;
+            while (current.getFind() != current) {
+                current = current.getFind();
+            }
+            return current;
+        }
     }
 
     /**
@@ -206,13 +229,10 @@ public class ClassManager {
 
     /**
      * Returns all current equivalence classes.
+     * OPTIMIZATION Phase 5.3: Use HashSet constructor for better performance
      */
     public Set<EquivalenceClass> getAllClasses() {
-        Set<EquivalenceClass> classes = new HashSet<>();
-        for (EquivalenceClass ec : termToClass.values()) {
-            classes.add(ec);
-        }
-        return classes;
+        return new HashSet<>(termToClass.values());
     }
 
     /**
@@ -234,6 +254,13 @@ public class ClassManager {
      */
     public boolean isUsingForbiddenSet() {
         return useForbiddenSet;
+    }
+
+    /**
+     * Returns true if path compression (non-recursive FIND) is enabled.
+     */
+    public boolean isUsingPathCompression() {
+        return usePathCompression;
     }
 
     /**
@@ -262,7 +289,11 @@ public class ClassManager {
             findOperations, unionOperations
         ));
 
-        // Add forbidden set statistics if enabled
+        // Add optimization statistics
+        if (usePathCompression) {
+            stats.append(", Path compression: ON");
+        }
+
         if (useForbiddenSet) {
             stats.append(String.format(
                 ", Forbidden pairs: %d, Forbidden checks: %d, Forbidden merges blocked: %d",

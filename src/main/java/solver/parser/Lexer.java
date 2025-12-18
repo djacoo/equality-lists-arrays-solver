@@ -14,18 +14,13 @@ import java.util.List;
  * - Disequalities: a != b
  * - Atom predicates: atom(x), !atom(cons(a,b))
  * - Function applications: cons(a,b), car(l), select(arr,i), store(arr,i,v)
+ *
+ * Phase 5.4: Refactored to use BaseLexer for common functionality.
  */
-public class Lexer {
-    private final String input;
-    private int position;
-    private int line;
-    private int column;
+public class Lexer extends BaseLexer {
 
     public Lexer(String input) {
-        this.input = input;
-        this.position = 0;
-        this.line = 1;
-        this.column = 1;
+        super(input);
     }
 
     /**
@@ -190,8 +185,7 @@ public class Lexer {
         int startLine = line;
         int startColumn = column;
         advance();  // Consume '\n'
-        line++;
-        column = 1;
+        advanceLine();
         return new Token(Token.TokenType.NEWLINE, "\n", startLine, startColumn);
     }
 
@@ -225,38 +219,6 @@ public class Lexer {
         while (!isAtEnd() && peek() != '\n') {
             advance();
         }
-    }
-
-    /**
-     * Returns the current character without consuming it.
-     */
-    private char peek() {
-        if (isAtEnd()) return '\0';
-        return input.charAt(position);
-    }
-
-    /**
-     * Returns the next character without consuming it.
-     */
-    private char peekNext() {
-        if (position + 1 >= input.length()) return '\0';
-        return input.charAt(position + 1);
-    }
-
-    /**
-     * Consumes and returns the current character.
-     */
-    private char advance() {
-        char c = input.charAt(position++);
-        column++;
-        return c;
-    }
-
-    /**
-     * Returns true if we've reached the end of input.
-     */
-    private boolean isAtEnd() {
-        return position >= input.length();
     }
 
     /**

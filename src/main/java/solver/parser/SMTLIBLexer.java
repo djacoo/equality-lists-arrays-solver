@@ -13,12 +13,10 @@ import java.util.Map;
  *
  * Reference: SMT-LIB Standard Version 2.0
  * http://smtlib.cs.uiowa.edu/papers/smt-lib-reference-v2.0-r10.12.21.pdf
+ *
+ * Phase 5.4: Refactored to use BaseLexer for common functionality.
  */
-public class SMTLIBLexer {
-    private final String input;
-    private int position;
-    private int line;
-    private int column;
+public class SMTLIBLexer extends BaseLexer {
 
     // Keywords map
     private static final Map<String, SMTLIBToken.TokenType> KEYWORDS = new HashMap<>();
@@ -33,10 +31,7 @@ public class SMTLIBLexer {
     }
 
     public SMTLIBLexer(String input) {
-        this.input = input;
-        this.position = 0;
-        this.line = 1;
-        this.column = 1;
+        super(input);
     }
 
     /**
@@ -192,8 +187,7 @@ public class SMTLIBLexer {
                 advance();
             } else if (c == '\n') {
                 advance();
-                line++;
-                column = 1;
+                advanceLine();
             } else {
                 break;
             }
@@ -208,38 +202,6 @@ public class SMTLIBLexer {
         while (!isAtEnd() && peek() != '\n') {
             advance();
         }
-    }
-
-    /**
-     * Returns the current character without consuming it.
-     */
-    private char peek() {
-        if (isAtEnd()) return '\0';
-        return input.charAt(position);
-    }
-
-    /**
-     * Returns the next character without consuming it.
-     */
-    private char peekNext() {
-        if (position + 1 >= input.length()) return '\0';
-        return input.charAt(position + 1);
-    }
-
-    /**
-     * Consumes and returns the current character.
-     */
-    private char advance() {
-        char c = input.charAt(position++);
-        column++;
-        return c;
-    }
-
-    /**
-     * Returns true if we've reached the end of input.
-     */
-    private boolean isAtEnd() {
-        return position >= input.length();
     }
 
     /**

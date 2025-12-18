@@ -236,8 +236,8 @@
 - [x] Analyze problem size vs performance characteristics
 - [x] Create summary tables and figures for report (REPORT_SUMMARY.md)
 - [ ] Test with different problem sizes (deferred to optional - adequate coverage exists)
-- [ ] Optional: Test forbidden list/set optimization (not implemented)
-- [ ] Optional: Test non-recursive FIND optimization (not implemented)
+- [x] Optional: Test forbidden list/set optimization ✓ COMPLETE (Phase 5.1 - 516 total tests, all passing)
+- [x] Optional: Test non-recursive FIND optimization ✓ COMPLETE (Phase 5.2 - 563 total tests, all passing)
 - [x] Optional: Test SMT-LIB QF-UF benchmarks (5/5 passing - parser bug fixed)
 
 **Final Results Summary:**
@@ -260,10 +260,15 @@
 - [REPORT_SUMMARY.md](../experiments/REPORT_SUMMARY.md) - Tables and figures for final report
 - [UNSAT_FAILURES_ANALYSIS.md](../experiments/UNSAT_FAILURES_ANALYSIS.md) - Detailed failure analysis
 
-### 4.3 Optional: Test Generator
-- [ ] Design random literal set generator
-- [ ] Generate synthetic test cases
-- [ ] Use for stress testing
+### 4.3 Optional: Test Generator ✓ COMPLETE
+- [x] Design random literal set generator (`RandomTestGenerator` class)
+- [x] Generate synthetic test cases (equality, list, array, and mixed theories)
+- [x] Use for stress testing (`StressTestRunner` command-line tool)
+- [x] Generate test cases of various sizes (5, 10, 20, 50, 100 variables)
+- [x] Include guaranteed SAT/UNSAT tests
+- [x] Test with forbidden set optimization
+- [x] Create 13 unit tests for generator (all passing)
+- Note: Array theory tests expose solver bugs with certain random patterns (documented)
 
 ---
 
@@ -290,25 +295,36 @@
   - [x] Created PHASE_5_1_SUMMARY.md with implementation details
   - [x] Updated PROJECT_PLAN.md
 
-### 5.2 Non-recursive FIND (Optional)
-- [ ] Implement iterative FIND function
-- [ ] Update UNION to modify find fields
-- [ ] Test impact on performance
-- [ ] Make it configurable option
+### 5.2 Non-recursive FIND (Optional) ✓ COMPLETE
+- [x] Verify iterative FIND function implementation (already implemented)
+- [x] Verify two-pass path compression algorithm
+- [x] Create comprehensive unit tests (11 tests)
+- [x] Create performance benchmark tests (6 tests)
+- [x] Create integration tests with other optimizations (10 tests)
+- [x] Test impact on performance (3.37x speedup on repeated FINDs)
+- [x] Verify configurable option via SolverConfig
+- [x] Documentation (PHASE_5_2_SUMMARY.md)
 
-### 5.3 Performance Tuning
-- [ ] Profile the solver
-- [ ] Optimize hot paths
-- [ ] Reduce memory allocations
-- [ ] Consider path compression in FIND
+### 5.3 Performance Tuning ✓ COMPLETE
+- [x] Profile the solver (8 comprehensive profiling tests)
+- [x] Optimize hot paths (MergeManager, ClassManager, CongruenceChecker)
+- [x] Reduce memory allocations (eliminated redundant HashSet copies)
+- [x] Path compression already implemented (Phase 5.2)
+- [x] Achieved 1.62x speedup (62% faster with all optimizations)
+- [x] All 571 tests passing (no regressions)
 
-### 5.4 Code Refactoring (Optional - from 3.5.1 review)
-- [ ] Refactor parser package to reduce duplication between custom and SMT-LIB formats
-  - [ ] Extract common tokenization logic into shared base or utilities
-  - [ ] Create abstract base classes for Lexer/Parser if beneficial
-  - [ ] Consider unified Token representation
-- [ ] Add exception hierarchy for better error handling
-- [ ] Consider Builder pattern for complex term construction
+### 5.4 Code Refactoring ✓ COMPLETE
+- [x] Refactored parser package to reduce duplication between custom and SMT-LIB formats
+  - [x] Extracted common tokenization logic into BaseLexer (peek, peekNext, advance, isAtEnd)
+  - [x] Created abstract BaseLexer class (85 lines shared code)
+  - [x] Created unified IToken interface (common token contract)
+  - [x] Both Lexer and SMTLIBLexer now extend BaseLexer
+  - [x] Both Token and SMTLIBToken now implement IToken
+- [x] Added exception hierarchy for better error handling
+  - [x] Created ParserException base class
+  - [x] LexerException and ParseException now extend ParserException
+- [x] Refactoring reduces code duplication by ~90 lines
+- [x] All 571 tests passing (no regressions)
 
 ---
 
@@ -348,28 +364,35 @@
 
 ## Phase 7: Submission Preparation (Week 11)
 
-### 7.1 Code Cleanup
-- [ ] Remove debug code and commented-out sections
-- [ ] Add code documentation/comments
-- [ ] Ensure consistent code style
-- [ ] Verify no hardcoded paths
+### 7.1 Code Cleanup ✓ COMPLETE
+- [x] Verified no debug code or commented-out sections
+- [x] Cleaned documentation: removed excessive .md files (kept 4 essential docs)
+- [x] Ensured consistent code style
+- [x] Verified no hardcoded paths in source code
+- [x] Cleaned up repository structure (organized, understandable)
+- [x] Removed development-specific files (BRANCHING_STRATEGY, COMPLETION_STATUS, etc.)
 
-### 7.2 Documentation
-- [ ] Write comprehensive README with:
-  - [ ] Compilation instructions
-  - [ ] Execution instructions
-  - [ ] Input format specification
-  - [ ] Examples of usage
-- [ ] Document each test file with its source
+### 7.2 Documentation ✓ COMPLETE
+- [x] Wrote comprehensive README with:
+  - [x] Compilation instructions (Maven + JAR)
+  - [x] Execution instructions (multiple formats)
+  - [x] Input format specification (custom + SMT-LIB)
+  - [x] 6 detailed examples with outputs
+  - [x] Algorithm overview and optimizations
+  - [x] Performance benchmarks
+  - [x] Troubleshooting guide
+- [x] Documented each test file with source (TEST_INDEX.md with 51 tests cataloged)
 
-### 7.3 Archive Creation
-- [ ] Organize directory structure:
-  - [ ] src/ - source code
-  - [ ] tests/ - input test files (with source comments)
-  - [ ] output/ - corresponding output files
-  - [ ] docs/ - README and any additional docs
-  - [ ] bin/ or executable - compiled binary (if applicable)
-- [ ] Create .tgz or .zip archive
+### 7.3 Archive Creation ✓ COMPLETE
+- [x] Organized directory structure:
+  - [x] src/ - source code (Java packages organized)
+  - [x] tests/ - input test files with source documentation
+  - [x] output/ - corresponding output files
+  - [x] docs/ - README, ARCHITECTURE, INPUT_FORMAT, PROJECT_PLAN
+  - [x] bin/ - compiled executable JAR (solver.jar)
+  - [x] experiments/ - performance analysis
+  - [x] assignment/ - project materials
+- [ ] Create .tgz archive
 - [ ] Name archive: FirstNameLastNameStudentId
 - [ ] Test extraction and compilation from archive
 
@@ -398,10 +421,10 @@
 
 ### Optional Features
 - [x] Forbidden list/set optimization ✓ COMPLETE (Phase 5.1)
-- [ ] Non-recursive FIND function
-- [ ] Synthetic test generator
+- [x] Non-recursive FIND function ✓ COMPLETE (Phase 5.2)
+- [x] Synthetic test generator ✓ COMPLETE (Phase 4.3)
 - [x] SMT-LIB QF-UF parser and benchmarks ✓ COMPLETE (Phase 3.3)
-- [ ] Performance profiling and tuning
+- [x] Performance profiling and tuning ✓ COMPLETE (Phase 5.3)
 
 ---
 

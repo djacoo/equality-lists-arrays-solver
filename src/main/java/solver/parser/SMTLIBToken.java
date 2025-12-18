@@ -8,8 +8,10 @@ package solver.parser;
  * (declare-fun f (Int Int) Int)
  * (assert (= (f a b) a))
  * (check-sat)
+ *
+ * Phase 5.4: Refactored to implement IToken interface.
  */
-public class SMTLIBToken {
+public class SMTLIBToken implements IToken {
     private final TokenType type;
     private final String value;
     private final int line;

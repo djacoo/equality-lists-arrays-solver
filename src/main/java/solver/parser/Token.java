@@ -4,8 +4,10 @@ package solver.parser;
  * Represents a token in the input stream.
  *
  * Tokens are produced by the Lexer and consumed by the Parser.
+ *
+ * Phase 5.4: Refactored to implement IToken interface.
  */
-public class Token {
+public class Token implements IToken {
     private final TokenType type;
     private final String value;
     private final int line;

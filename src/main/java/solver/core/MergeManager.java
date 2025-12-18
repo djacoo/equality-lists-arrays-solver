@@ -92,8 +92,9 @@ public class MergeManager {
             // For each parent of a and each parent of b,
             // check if they are congruent and merge them if so
 
-            Set<FunctionApp> parentsA = new HashSet<>(repA.getCcpar());
-            Set<FunctionApp> parentsB = new HashSet<>(repB.getCcpar());
+            // OPTIMIZATION Phase 5.3: Access ccpar sets directly to avoid allocation
+            Set<FunctionApp> parentsA = repA.getCcpar();
+            Set<FunctionApp> parentsB = repB.getCcpar();
 
             for (FunctionApp pa : parentsA) {
                 for (FunctionApp pb : parentsB) {

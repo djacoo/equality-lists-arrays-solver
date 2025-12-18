@@ -23,6 +23,11 @@ public class CongruenceChecker {
      * @return true if the terms are congruent, false otherwise
      */
     public static boolean areCongruent(Term t1, Term t2, ClassManager classManager) {
+        // OPTIMIZATION Phase 5.3: Check identity first (fast path)
+        if (t1 == t2) {
+            return true;
+        }
+
         // Terms must both be function applications
         if (t1.isLeaf() || t2.isLeaf()) {
             return false;
