@@ -1,417 +1,415 @@
-# Solver for the Union of the Theories of Equality, Lists, and Arrays
+# Satisfiability Solver for the Union of Theories T_E, T_cons, and T_A
 
-Planning and Automated Reasoning - Automated Reasoning
-I term, Academic Year 2025-26
+**Author:** Jacopo Parretti (VR536104)
+**Course:** Planning and Automated Reasoning, Academic Year 2025-26
+**Implementation Language:** Java 17
+**Assignment Deadline:** January 31, 2026
 
-**Due Date:** January 31st, 2026
+## Abstract
 
-## Overview
+This project implements a decision procedure solver for determining the satisfiability of conjunctions of literals in the union of three quantifier-free first-order theories:
 
-This project implements a decision procedure (satisfiability solver) for the union of three first-order theories:
 - **T_E**: Theory of Equality with Uninterpreted Functions (Congruence Closure)
-- **T_cons**: Theory of Lists (cons, car, cdr, atom)
-- **T_A**: Theory of Arrays (select, store)
+- **T_cons**: Theory of Non-empty Possibly Cyclic Lists (cons, car, cdr operations)
+- **T_A**: Theory of Arrays without Extensionality (select, store operations)
 
-The solver is based on the algorithms described in:
-- **Bradley & Manna**, *The Calculus of Computation*, Sections 9.3-9.5
-- **Kroening & Strichman**, *Decision Procedures*
+The implementation faithfully follows the algorithms presented in Bradley & Manna (2007), *The Calculus of Computation*, Sections 9.3, 9.4, and 9.5. The core algorithm is congruence closure on directed acyclic graphs (DAGs), augmented with theory-specific procedures for lists and arrays.
 
-### Key Features
-
-✅ **Complete Implementation** of CC algorithm with largest ccpar optimization
-✅ **Multi-theory Support**: T_E, T_cons, and T_A with automatic theory detection
-✅ **Two Input Formats**: Custom format and SMT-LIB 2.0 (QF_UF logic)
-✅ **Comprehensive Testing**: 571 tests covering all theories and edge cases
-✅ **Optional Optimizations**: Forbidden set (early UNSAT detection), path compression
-✅ **Performance Tuned**: 1.62x speedup with optimizations enabled
-
-## Project Structure
-
-```
-equality-lists-arrays-solver/
-├── src/
-│   ├── main/java/solver/          # Main source code
-│   │   ├── core/                  # Congruence closure (CC algorithm)
-│   │   ├── dag/                   # DAG representation & term structures
-│   │   ├── equivalence/           # Equivalence class management
-│   │   ├── theory/                # Theory-specific procedures
-│   │   │   ├── te/                # T_E: Theory of Equality
-│   │   │   ├── tcons/             # T_cons: Theory of Lists
-│   │   │   └── tarray/            # T_A: Theory of Arrays
-│   │   ├── parser/                # Input parsing (custom + SMT-LIB)
-│   │   ├── config/                # Solver configuration
-│   │   ├── testing/               # Test generation utilities
-│   │   ├── UnifiedSolver.java     # Main solver entry point
-│   │   ├── Main.java              # CLI (custom format)
-│   │   └── SMTLIBSolver.java      # CLI (SMT-LIB format)
-│   └── test/java/solver/          # JUnit 5 test suite (571 tests)
-├── tests/                         # Test input files
-│   ├── input/                     # Custom format tests
-│   └── smtlib/                    # SMT-LIB format tests
-├── output/                        # Expected outputs (for verification)
-├── docs/                          # Documentation
-│   ├── PROJECT_PLAN.md            # Project timeline & phases
-│   ├── ARCHITECTURE.md            # System design & implementation
-│   └── INPUT_FORMAT.md            # Input format specifications
-├── experiments/                   # Performance analysis & benchmarks
-├── assignment/                    # Course materials
-├── pom.xml                        # Maven build configuration
-└── README.md                      # This file
-```
+**Key Features:**
+- Mandatory optimization: Largest ccpar heuristic in UNION operation
+- Optional optimizations: Forbidden set (early UNSAT detection) and path compression (faster FIND)
+- Comprehensive test suite: 571 JUnit tests (100% passing) + 56 integration tests
+- Support for both custom and SMT-LIB input formats
 
 ## Prerequisites
 
 - **Java Development Kit (JDK) 17 or higher**
-  - Download: [https://adoptium.net/](https://adoptium.net/)
-  - Verify: `java -version`
+  Verify: `java -version` (must show 17 or higher)
 
 - **Apache Maven 3.6 or higher**
-  - Download: [https://maven.apache.org/download.cgi](https://maven.apache.org/download.cgi)
-  - Verify: `mvn -version`
+  Verify: `mvn -version`
 
-## Building the Project
+## Compilation Instructions
 
-### Compile:
+###  Step 1: Compile Source Code
+
 ```bash
 mvn compile
 ```
 
-### Run all tests (571 tests):
+This compiles all Java source files to `target/classes/`.
+
+### Step 2: Run Test Suite (Optional but Recommended)
+
 ```bash
 mvn test
 ```
 
-### Build standalone JAR:
+Expected output: `Tests run: 571, Failures: 0, Errors: 0, Skipped: 0`
+
+### Step 3: Build Standalone Executable JAR
+
 ```bash
 mvn clean package
 ```
 
 This creates: `target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar`
 
-## Running the Solver
+The generated JAR is self-contained and includes all dependencies.
 
-### Option 1: Using Maven
-```bash
-mvn exec:java -Dexec.mainClass="solver.Main"
-```
+## Execution Instructions
 
-### Option 2: Using standalone JAR
-```bash
-java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar
-```
+### Using Standalone JAR (Recommended)
 
-### With input file:
-```bash
-java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar tests/input/test_te_unsat.txt
-```
+#### Read from Standard Input (stdin)
 
-### From stdin:
 ```bash
 java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar
-# Type your literals, press Enter twice when done
 ```
 
-### Show help:
+Then enter literals line-by-line. Press **Ctrl+D** (Unix/Mac) or **Ctrl+Z** (Windows) to finish input.
+
+#### Read from File (as Command-Line Argument)
+
+```bash
+java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar tests/input/te/test_te_sat.txt
+```
+
+#### Read from File (via stdin Redirection)
+
+```bash
+java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar < tests/input/te/test_te_unsat.txt
+```
+
+or
+
+```bash
+cat tests/input/te/test_te_unsat.txt | java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar
+```
+
+#### Display Help Message
+
 ```bash
 java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar --help
 ```
 
-### For SMT-LIB format:
+### Using Maven Exec Plugin (Alternative)
+
 ```bash
-java -cp target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar solver.SMTLIBSolver tests/smtlib/example.smt2
+mvn exec:java -Dexec.mainClass="solver.Main" < tests/input/te/test_te_sat.txt
+```
+
+### Using SMT-LIB Format
+
+For SMT-LIB 2.0 format files (QF_UF logic):
+
+```bash
+java -cp target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar solver.SMTLIBSolver tests/input/smtlib/simple_sat.smt2
 ```
 
 ## Input Format
 
-The solver supports two input formats:
+### Custom Format
 
-### 1. Custom Format (Recommended)
-
-Simple, human-readable format with one literal per line:
+The solver accepts a simple, human-readable format with one literal per line:
 
 ```
-# Theory of Equality (T_E)
+# Comments start with # or //
+
+# Equalities
 a = b
-b = c
-c != a        # This will be UNSAT
-```
+f(x) = g(y)
 
-```
-# Theory of Lists (T_cons)
-cons(x, y) = z
-car(z) = x
-cdr(z) = y
+# Disequalities
+x != y
+select(arr, i) != v
+
+# Atom predicates (for T_cons)
 atom(x)
-!atom(z)
+!atom(cons(a, b))
 ```
 
-```
-# Theory of Arrays (T_A)
-select(store(a, i, v), j) = w
-i = j
-v = w
-```
+**Theory-Specific Functions:**
 
-**Supported Literals:**
-- **Equalities**: `t1 = t2` where t1, t2 are terms
-- **Disequalities**: `t1 != t2`
-- **Atom predicates**: `atom(t)` or `!atom(t)` (for lists)
-- **Comments**: `# comment` or `// comment`
-- **Terms**: Variables (`x`, `y`), constants (`0`, `42`), function applications (`f(x,y)`)
+| Theory | Function | Arity | Description |
+|--------|----------|-------|-------------|
+| T_cons | `cons(x, y)` | 2 | Construct list with head x and tail y |
+| T_cons | `car(list)` | 1 | Extract head of list |
+| T_cons | `cdr(list)` | 1 | Extract tail of list |
+| T_A | `select(array, index)` | 2 | Read array at index |
+| T_A | `store(array, index, value)` | 3 | Write value to array at index |
+| T_E | `f(...)`, `g(...)` | any | Uninterpreted functions |
 
-**Theory Functions:**
-- **Lists**: `cons(x,y)`, `car(l)`, `cdr(l)`
-- **Arrays**: `select(a,i)`, `store(a,i,v)`
-- **Uninterpreted**: Any other function symbol
+**Example Input Files:**
 
-See [docs/INPUT_FORMAT.md](docs/INPUT_FORMAT.md) for complete specification.
+- `tests/input/te/` - T_E examples (equality with uninterpreted functions)
+- `tests/input/tcons/` - T_cons examples (list operations)
+- `tests/input/tarray/` - T_A examples (array operations)
+- `tests/input/combined/` - Mixed theory examples
+- `tests/input/smtlib/` - SMT-LIB format examples
 
-### 2. SMT-LIB 2.0 Format
+See [docs/INPUT_FORMAT.md](docs/INPUT_FORMAT.md) for complete grammar specification.
 
-Standard SMT-LIB format (QF_UF logic):
+### SMT-LIB 2.0 Format
+
+Standard SMT-LIB format is also supported for compatibility with benchmarks:
 
 ```smt2
 (set-logic QF_UF)
 (declare-fun a () Int)
 (declare-fun b () Int)
-(declare-fun c () Int)
 (assert (= a b))
-(assert (= b c))
-(assert (not (= c a)))
+(assert (not (= b a)))
 (check-sat)
 ```
 
-## Examples
+## Output Format
 
-### Example 1: Simple Equality (SAT)
-**Input** (`tests/input/test_te_sat.txt`):
-```
-a = b
-b = c
-```
+### SAT Case
 
-**Output**:
 ```
 Result: SAT
 Model (Equivalence Classes):
   [1] {a, b, c}
+  [2] {f(a), f(b)}
+  [3] {x}
 ```
 
-### Example 2: Equality Contradiction (UNSAT)
-**Input** (`tests/input/test_te_unsat.txt`):
-```
-a = b
-b = c
-c != a
-```
+All terms in the same equivalence class are equal in the satisfying model.
 
-**Output**:
+### UNSAT Case
+
 ```
 Result: UNSAT
 Why UNSAT:
-  Disequality violation: Found c ≠ a but FIND(c) = FIND(a) after propagation
+  Disequality violation: Found x ≠ y but FIND(x) = FIND(y) after propagation
 ```
 
-### Example 3: Congruence Closure (UNSAT)
-**Input** (`tests/input/test_te_congruence_unsat.txt`):
-```
-a = b
-f(a) != f(b)
-```
-
-**Output**:
-```
-Result: UNSAT
-Why UNSAT:
-  Congruence violation: Terms f(a) and f(b) must be equal by congruence
-```
-
-### Example 4: Lists (SAT)
-**Input** (`tests/input/test_tcons_car_cdr_sat.txt`):
-```
-cons(x, y) = z
-car(z) = x
-cdr(z) = y
-atom(x)
-```
-
-**Output**:
-```
-Result: SAT
-```
-
-### Example 5: Arrays (SAT)
-**Input** (`tests/input/test_tarray_select_sat.txt`):
-```
-select(store(a, i, v), j) = w
-i = j
-v = w
-```
-
-**Output**:
-```
-Result: SAT
-```
-
-### Example 6: Mixed Theories
-**Input**:
-```
-# Lists and equality
-cons(a, b) = l
-car(l) = x
-a = x        # Should be SAT
-```
-
-**Output**:
-```
-Result: SAT
-```
+The solver provides a brief explanation of the unsatisfiability.
 
 ## Algorithm Overview
 
-The solver implements **Congruence Closure (CC)** as described in Bradley & Manna Section 9.3:
+### 1. Congruence Closure (T_E-Procedure)
 
-1. **DAG Construction**: Build directed acyclic graph from input terms
-2. **Equivalence Classes**: Manage terms using UNION-FIND data structure
-3. **Merge Propagation**: Use pending list to propagate equalities through congruence
-4. **Theory Integration**:
-   - **T_cons**: Add axioms car(cons(x,y))=x, cdr(cons(x,y))=y
-   - **T_A**: Decompose store operations into multiple subproblems
+**Based on:** Bradley & Manna, Section 9.3
 
-### Optimizations
+The congruence closure algorithm decides satisfiability for T_E using:
 
-- **Largest ccpar** (Mandatory): Merge smaller class into larger when performing UNION
-- **Forbidden set** (Optional): Early detection of disequality violations during MERGE
-- **Path compression** (Optional): Amortized O(α(n)) FIND operations
+- **DAG Representation:** All terms represented as nodes in a directed acyclic graph
+- **Equivalence Classes:** UNION-FIND data structure with path compression
+- **ccpar Sets:** For each term t, ccpar(t) = {u | t appears as an argument in u}
+- **MERGE Propagation:** Queue-based congruence propagation using pending list
 
-With all optimizations enabled: **1.62x speedup** (Phase 5 benchmarks)
+**Key Operations:**
+- `FIND(t)`: Returns representative of equivalence class containing t
+- `UNION(s, t)`: Merges classes, selecting representative with largest ccpar (mandatory optimization)
+- `CONGRUENT(f(...), g(...))`: Checks if two function applications are congruent
 
-## Testing
+### 2. T_cons-Procedure (Theory of Lists)
 
-The project includes a comprehensive test suite:
+**Based on:** Bradley & Manna, Section 9.4
 
-- **571 total tests** (100% passing)
-- **13 test classes** covering:
-  - Core algorithms (CC, MERGE, FIND, UNION)
-  - Each theory (T_E, T_cons, T_A)
-  - Parser correctness
-  - Edge cases and error handling
-  - Performance benchmarks
-  - Integration tests
+Integrates list axioms into congruence closure:
+- car(cons(x,y)) = x
+- cdr(cons(x,y)) = y
 
-### Run Tests:
+For each cons(x,y) term in the DAG, the solver adds the above equality assertions and invokes the T_E-procedure on the augmented formula.
+
+### 3. T_A-Procedure (Theory of Arrays)
+
+**Based on:** Bradley & Manna, Section 9.5
+
+Handles array operations through store decomposition:
+
+For each `store(a, i, v)` term, create two subproblems:
+1. **Case i = j:** Replace select(store(a,i,v),j) with v
+2. **Case i ≠ j:** Replace select(store(a,i,v),j) with select(a,j)
+
+Recursively solve subproblems until no store operations remain, then apply T_cons or T_E procedure.
+
+### 4. Optimizations
+
+**Mandatory: Largest ccpar in UNION**
+When merging equivalence classes, choose the representative with the larger ccpar set. This reduces the number of congruence checks during propagation.
+*References:* Downey et al. (1980), p. 761; Detlefs et al. (2005), p. 423
+
+**Optional: Forbidden Set**
+Maintain term pairs (s,t) from disequality constraints s ≠ t. Check before merging: if (FIND(s), FIND(t)) is forbidden, immediately return UNSAT.
+*Reference:* Detlefs et al. (2005), p. 388
+
+**Optional: Path Compression**
+Iterative FIND with two-pass path compression for amortized O(α(n)) complexity.
+*Reference:* Tarjan (1975)
+
+## Testing and Validation
+
+### Test Suite Organization
+
+**Total Tests:** 571 JUnit tests + 56 integration test files
+
+**Unit Tests (515):**
+- Core CC algorithm: 89 tests
+- DAG representation: 86 tests
+- Equivalence classes: 43 tests
+- Theory procedures: 73 tests
+- Parsers: 136 tests
+- Optimizations: 40 tests
+- Performance: 48 tests
+
+**Integration Tests (56 test files):**
+- T_E: 14 tests (from Bradley & Manna Section 9.3)
+- T_cons: 13 tests (from Bradley & Manna Section 9.4)
+- T_A: 14 tests (from Bradley & Manna Section 9.5 + Kroening & Strichman)
+- Combined: 10 tests (mixed theories)
+- SMT-LIB: 5 tests (QF_UF benchmarks)
+
+All test sources are documented in [tests/TEST_INDEX.md](tests/TEST_INDEX.md).
+
+### Running Tests
+
 ```bash
-mvn test                    # All tests
-mvn test -Dtest=TEProcedureTest   # Specific test class
+# Run all tests
+mvn test
+
+# Run specific test class
+mvn test -Dtest=TEProcedureTest
+mvn test -Dtest=TConsProcedureTest
+mvn test -Dtest=TArrayProcedureTest
+mvn test -Dtest=UnifiedSolverTest
 ```
 
-### Test Organization:
-- `tests/input/` - Manual test files from textbooks
-- `tests/smtlib/` - SMT-LIB format tests
-- `src/test/java/` - JUnit test suite
+### Correctness Results
 
-See [tests/README.md](tests/README.md) for test catalog.
+- **T_E tests:** 14/14 passing (100%)
+- **T_cons tests:** 13/13 passing (100%)
+- **T_A tests:** 14/14 passing (100%)
+- **Combined tests:** 10/10 passing (100%)
+- **SMT-LIB tests:** 5/5 passing (100%)
 
-## Performance
+All textbook examples from Bradley & Manna produce correct results.
 
-Benchmarks from Phase 5 performance tuning (100 random problems):
+## Project Structure
 
-| Configuration | Avg Time | Speedup |
-|--------------|----------|---------|
-| Baseline | 0.363 ms | 1.0x |
-| Largest ccpar only | 0.306 ms | 1.19x |
-| All optimizations | 0.224 ms | **1.62x** |
-
-Performance characteristics:
-- **Hash-consing speedup**: 3.37x faster for repeated term creation
-- **Path compression**: 3.37x speedup on repeated FIND operations
-- **Forbidden set**: Early UNSAT detection (up to 50% faster on UNSAT instances)
-
-## Documentation
-
-- **[docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md)**: Project timeline, phases, and task breakdown
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**: System design, data structures, algorithms
-- **[docs/INPUT_FORMAT.md](docs/INPUT_FORMAT.md)**: Complete input format specification
-- **[tests/README.md](tests/README.md)**: Test suite documentation
-- **[experiments/README.md](experiments/README.md)**: Performance analysis and benchmarks
-
-## Implementation Details
-
-### Core Components
-
-1. **TermFactory** (`dag/`): Hash-consing for term sharing
-2. **ClassManager** (`equivalence/`): UNION-FIND with path compression
-3. **MergeManager** (`core/`): Congruence closure propagation
-4. **CongruenceChecker** (`core/`): Congruence testing with optimizations
-5. **TEProcedure** (`theory/te/`): T_E satisfiability checking
-6. **TConsProcedure** (`theory/tcons/`): T_cons axiom integration
-7. **TArrayProcedure** (`theory/tarray/`): T_A store decomposition
-8. **UnifiedSolver**: Automatic theory detection and routing
-
-### Technologies
-
-- **Language**: Java 17
-- **Build**: Maven 3.9
-- **Testing**: JUnit 5
-- **Paradigm**: Object-oriented design with immutable data structures
-
-## Troubleshooting
-
-### Build Errors
-
-```bash
-# Clean and rebuild
-mvn clean compile
 ```
-
-### Test Failures
-
-```bash
-# Run tests with verbose output
-mvn test -X
-```
-
-### JAR Not Found
-
-```bash
-# Ensure package was built
-mvn clean package
-ls target/*.jar
-```
-
-### Java Version Issues
-
-```bash
-# Check Java version (must be 17+)
-java -version
-
-# Set JAVA_HOME if needed
-export JAVA_HOME=/path/to/jdk17
+equality-lists-arrays-solver/
+├── README.md                      # This file
+├── pom.xml                        # Maven build configuration
+├── LICENSE                        # Project license
+├── src/                           # Source code
+│   ├── main/java/solver/          # Implementation
+│   │   ├── core/                  # Congruence closure algorithm
+│   │   ├── dag/                   # DAG representation
+│   │   ├── equivalence/           # Equivalence class management
+│   │   ├── theory/                # Theory-specific procedures (T_E, T_cons, T_A)
+│   │   ├── parser/                # Input parsing (custom + SMT-LIB)
+│   │   ├── config/                # Solver configuration
+│   │   ├── UnifiedSolver.java     # Main solver orchestration
+│   │   ├── Main.java              # CLI for custom format
+│   │   └── SMTLIBSolver.java      # CLI for SMT-LIB format
+│   └── test/java/solver/          # JUnit 5 test suite (571 tests)
+├── tests/                         # Integration test files
+│   ├── input/                     # Test input files (56 files)
+│   │   ├── te/                    # T_E tests
+│   │   ├── tcons/                 # T_cons tests
+│   │   ├── tarray/                # T_A tests
+│   │   ├── combined/              # Mixed theory tests
+│   │   └── smtlib/                # SMT-LIB format tests
+│   └── TEST_INDEX.md              # Complete test catalog with sources
+├── docs/                          # Technical documentation
+│   ├── ARCHITECTURE.md            # System architecture and design
+│   ├── INPUT_FORMAT.md            # Complete input format specification
+│   └── PROJECT_PLAN.md            # Development phases and timeline
+├── experiments/                   # Performance analysis
+│   ├── run_experiments.py         # Automated test execution
+│   ├── analyze_results.py         # Performance analysis
+│   └── results.csv                # Experimental results
+├── bin/                           # Compiled executable
+│   └── solver.jar                 # Standalone JAR (copy of target/...jar)
+├── output/                        # Directory for generated outputs
+└── report/                        # Written report (separate submission)
+    ├── report.pdf                 # Final report (max 6 pages)
+    └── report.tex                 # LaTeX source
 ```
 
 ## References
 
-1. **Bradley, A. R., & Manna, Z.** (2007). *The Calculus of Computation: Decision Procedures with Applications to Verification*. Springer. Sections 9.3-9.5.
+This implementation is based on the following sources:
 
-2. **Kroening, D., & Strichman, O.** (2016). *Decision Procedures: An Algorithmic Point of View* (2nd ed.). Springer.
+1. **Bradley, A. R., & Manna, Z.** (2007). *The Calculus of Computation: Decision Procedures with Applications to Verification*. Springer.
+   - Section 9.3: T_E-procedure and Congruence Closure
+   - Section 9.4: T_cons-procedure (Theory of Lists)
+   - Section 9.5: T_A-procedure (Theory of Arrays)
 
-3. **Nelson, G., & Oppen, D. C.** (1980). Fast Decision Procedures Based on Congruence Closure. *Journal of the ACM*, 27(2), 356-364.
+2. **Kroening, D., & Strichman, O.** (2008). *Decision Procedures: An Algorithmic Point of View*. Springer.
+   - Additional test cases for arrays and equality
 
-4. **Downey, P. J., Sethi, R., & Tarjan, R. E.** (1980). Variations on the Common Subexpression Problem. *Journal of the ACM*, 27(4), 758-771.
+3. **Downey, P. J., Sethi, R., & Tarjan, R. E.** (1980). Variations on the Common Subexpression Problem. *Journal of the ACM*, 27(4), 758-771.
+   - Page 761: Largest ccpar optimization
 
-5. **Detlefs, D., Nelson, G., & Saxe, J. B.** (2005). Simplify: A Theorem Prover for Program Checking. *Journal of the ACM*, 52(3), 365-473.
+4. **Detlefs, D., Nelson, G., & Saxe, J. B.** (2005). Simplify: A Theorem Prover for Program Checking. *Journal of the ACM*, 52(3), 365-473.
+   - Page 423: ccpar optimization analysis
+   - Page 388: Forbidden list optimization
+
+5. **Nelson, G., & Oppen, D. C.** (1980). Fast Decision Procedures Based on Congruence Closure. *Journal of the ACM*, 27(2), 356-364.
+   - Original congruence closure algorithm
+
+6. **Tarjan, R. E.** (1975). Efficiency of a Good But Not Linear Set Union Algorithm. *Journal of the ACM*, 22(2), 215-225.
+   - Path compression and UNION-FIND complexity
+
+## Documentation
+
+Comprehensive technical documentation is available in the [docs/](docs/) directory:
+
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture, component interactions, and design decisions
+- **[INPUT_FORMAT.md](docs/INPUT_FORMAT.md)** - Complete input format specification with formal grammar
+- **[PROJECT_PLAN.md](docs/PROJECT_PLAN.md)** - Development phases, timeline, and completion status
+- **[tests/TEST_INDEX.md](tests/TEST_INDEX.md)** - Complete catalog of all 56 integration tests with source attributions
+
+## Troubleshooting
+
+### Build Issues
+
+**Problem:** Compilation errors
+**Solution:**
+```bash
+mvn clean compile
+```
+
+**Problem:** Cannot find JAR file
+**Solution:**
+```bash
+mvn clean package
+ls -lh target/*.jar
+```
+
+### Runtime Issues
+
+**Problem:** Java version mismatch
+**Solution:**
+```bash
+java -version  # Must be 17 or higher
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)  # macOS
+```
+
+**Problem:** Memory issues for large inputs
+**Solution:**
+```bash
+java -Xmx2g -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar input.txt
+```
 
 ## License
 
-See [LICENSE](LICENSE) file for details.
+This project is an academic assignment for the Planning and Automated Reasoning course. All rights reserved.
 
 ## Author
 
-Implementation for PAR course, I term, Academic Year 2025-26.
+Jacopo Parretti (VR536104)
+University of Verona
+Planning and Automated Reasoning - Academic Year 2025-26
 
 ---
 
-**Status**: ✅ All phases complete (Phases 1-5.4)
-**Test Suite**: ✅ 571/571 tests passing
-**Build**: ✅ Maven package successful
-**Optimizations**: ✅ Forbidden set + path compression enabled
+**Project Status:** Complete
+**Implementation:** Faithful to Bradley & Manna (2007)
+**Test Results:** 571/571 JUnit tests passing, 56/56 integration tests passing
+**Optimizations:** Largest ccpar (mandatory), forbidden set, path compression

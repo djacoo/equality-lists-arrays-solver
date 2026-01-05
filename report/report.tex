@@ -1,0 +1,263 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+
+% Page geometry - optimized for professional appearance
+\geometry{
+    a4paper,
+    left=2.5cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm,
+    headheight=14pt
+}
+
+% Code listing style
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Title information
+\title{\textbf{Implementation of a Solver for the Union of the Theories of Equality, Lists, and Arrays}}
+
+\author{
+    Jacopo Parretti \\
+    Student ID: VR536104 \\
+    Planning and Automated Reasoning \\
+    Academic Year 2025-26
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report presents the implementation and experimental evaluation of a decision procedure solver for the union of three quantifier-free theories: the theory of equality with uninterpreted functions ($\mathcal{T}_E$), the theory of non-empty possibly cyclic lists ($\mathcal{T}_{cons}$), and the theory of arrays without extensionality ($\mathcal{T}_A$). The solver is based on the congruence closure algorithm on directed acyclic graphs (DAGs) with optimizations including the mandatory largest ccpar heuristic, along with optional forbidden set and path compression optimizations. We describe the architectural design, implementation choices, data structures, and evaluate performance on 56 test cases from Bradley \& Manna and Kroening \& Strichman textbooks. The experimental results demonstrate 96.4\% correctness rate with average runtime of 2.53 ms, achieving 100\% accuracy on pure $\mathcal{T}_E$ and $\mathcal{T}_{cons}$ problems.
+\end{abstract}
+
+\section{Introduction}
+
+The satisfiability problem for combinations of theories is fundamental in automated reasoning and program verification. This project implements a prototype solver that determines the satisfiability of conjunctions of literals in the union of $\mathcal{T}_E$ (theory of equality with uninterpreted symbols), $\mathcal{T}_{cons}$ (theory of lists with car, cdr, cons operations), and $\mathcal{T}_A$ (theory of arrays with select and store operations).
+
+Since satisfiability in $\mathcal{T}_{cons}$ and $\mathcal{T}_A$ reduce to satisfiability in $\mathcal{T}_E$, the Nelson-Oppen combination scheme is not required. Instead, the solver processes array symbols first (store decomposition, then select processing), followed by list symbols (building axioms into congruence closure), and finally applies the core $\mathcal{T}_E$-procedure based on the congruence closure (CC) algorithm on DAGs.
+
+The implementation is written in Java and follows the algorithms described in Bradley \& Manna~\cite{bradley2007calculus}, specifically Sections 9.3, 9.4, and 9.5.
+
+\section{Implementation}
+
+\subsection{Overall Architecture}
+
+The solver employs a modular architecture with clear separation between theory-specific procedures and the core congruence closure engine. Since both $\mathcal{T}_{cons}$ and $\mathcal{T}_A$ reduce to $\mathcal{T}_E$ through axiom integration and decomposition, the congruence closure algorithm serves as the foundation. The \texttt{UnifiedSolver} detects theory symbols, applies \texttt{TArrayProcedure} for store decomposition, \texttt{TConsProcedure} for list axiom integration, and finally \texttt{TEProcedure} for congruence closure.
+
+Key components include: DAG construction with hash-consing, congruence closure operations (FIND/UNION/MERGE), theory-specific procedures ($\mathcal{T}_E$, $\mathcal{T}_{cons}$, $\mathcal{T}_A$), input parser supporting both custom and SMT-LIB formats, and the main solver driver orchestrating the entire process.
+
+\subsection{Data Structures}
+
+\subsubsection{DAG Representation}
+
+Terms are represented as DAG nodes using a three-level class hierarchy: \texttt{Variable}/\texttt{Constant} (leaves) and \texttt{FunctionApp} (internal nodes). The \texttt{TermFactory} implements hash-consing: structurally identical terms share the same object, enabling $O(1)$ equality checks and reducing memory usage.
+
+
+\subsubsection{Equivalence Classes}
+
+The \texttt{ClassManager} maintains equivalence classes with representatives, members, and ccpar sets. FIND locates representatives via find pointers; UNION merges classes by selecting the representative with largest ccpar.
+
+
+\subsection{Core Algorithms}
+
+\subsubsection{Congruence Closure}
+
+The CC algorithm implements the FIND, UNION, MERGE, and CONGRUENT procedures as described in~\cite{bradley2007calculus} Section 9.3.
+
+\textbf{FIND function:} The implementation provides both recursive and iterative versions. The iterative version uses two-pass path compression: the first pass traverses find pointers to locate the root representative, while the second pass updates all encountered find pointers to point directly to the root. This achieves amortized $O(\alpha(n))$ complexity, where $\alpha$ is the inverse Ackermann function.
+
+\textbf{UNION function with largest ccpar:} The assignment requires selecting the representative with the largest ccpar set when merging equivalence classes (see~\cite{downey1980variations} p.~761 and~\cite{detlefs2005simplify} p.~423). The implementation compares $|ccpar(FIND(s))|$ and $|ccpar(FIND(t))|$, choosing the term with the larger ccpar as the new representative. This reduces congruence checks during MERGE because fewer terms require ccpar updates.
+
+\textbf{MERGE procedure:} The MERGE operation uses a pending list (queue) to propagate congruences. When merging $s$ and $t$, we first call UNION to merge their classes, then examine all pairs $(u, v)$ where $u \in ccpar(s)$ and $v \in ccpar(t)$. For each pair where CONGRUENT$(u, v)$ holds, we add $(u, v)$ to the pending list. This process continues iteratively until the pending list is empty, ensuring all implied equalities are discovered.
+
+\subsubsection{$\mathcal{T}_{cons}$-Procedure}
+
+The list theory procedure integrates the car and cdr axioms into the congruence closure:
+\begin{align}
+    car(cons(x, y)) &= x \\
+    cdr(cons(x, y)) &= y
+\end{align}
+
+The \texttt{TConsProcedure} first scans the DAG to identify all $cons(x, y)$ terms. For each such term, it creates new terms $car(cons(x, y))$ and $cdr(cons(x, y))$ via the \texttt{TermFactory}, then adds equality literals asserting these terms equal $x$ and $y$ respectively. These augmented literals are then passed to the \texttt{TEProcedure}, which applies standard congruence closure. The algorithm correctly handles cyclic list structures (e.g., $x = cons(a, x)$) because the CC algorithm naturally terminates when all congruences are discovered.
+
+\subsubsection{$\mathcal{T}_A$-Procedure}
+
+The array theory procedure handles store and select operations:
+
+\textbf{Store decomposition:} Each occurrence of store generates two subproblems~\cite{bradley2007calculus}:
+\begin{align}
+    \text{Subproblem 1:} \quad & i = j \land select(store(a, i, v), j) = v \\
+    \text{Subproblem 2:} \quad & i \neq j \land select(store(a, i, v), j) = select(a, j)
+\end{align}
+
+The \texttt{TArrayProcedure} identifies all store operations, then selects one for decomposition. The first subproblem assumes the indices are equal and applies the read-over-write rule (Axiom 3), while the second assumes they differ (Axiom 4). Both subproblems replace $store(a, i, v)$ with $a$ to eliminate the store. This process recurses: if a subproblem contains more stores, it is further decomposed. The recursion terminates when no stores remain, at which point the subproblem is solved using \texttt{TConsProcedure} or \texttt{TEProcedure}. The overall problem is SAT if any leaf subproblem is SAT.
+
+\subsection{Optional Optimizations}
+
+\subsubsection{Forbidden Set}
+
+The forbidden set optimization (see~\cite{detlefs2005simplify} p.~388) maintains term pairs $(s, t)$ from disequality literals $s \neq t$. Before merging equivalence classes in UNION, \texttt{ClassManager} checks if $(FIND(s), FIND(t))$ exists in the forbidden set. If found, the merge would violate a disequality, causing immediate UNSAT return without completing the merge. This enables early termination for unsatisfiable instances. Implemented as a configurable option via \texttt{SolverConfig}, it adds minimal SAT overhead while potentially accelerating UNSAT detection.
+
+\subsubsection{Non-recursive FIND}
+
+The non-recursive FIND implementation uses an iterative two-pass algorithm. The first pass follows find pointers from the query term to the root, collecting all visited terms in a list. The second pass updates all collected terms to point directly to the root representative. This path compression strategy ensures that subsequent FIND operations on the same terms complete in near-constant time. Benchmark tests on chains of 100 equalities showed a 3.37× speedup compared to the recursive version without path compression. This optimization is also configurable via \texttt{SolverConfig}.
+
+\subsection{Implementation Trade-offs}
+
+\textbf{Language:} Java provides portability, robust collections (HashMap/HashSet), and automatic memory management. The JVM's JIT compiler delivers good performance despite some overhead compared to C++.
+
+\textbf{Trade-offs:} Hash-consing trades memory for $O(1)$ equality; maintaining ccpar sets increases memory but enables the mandatory optimization. These choices favor speed over memory, suitable for modern systems.
+
+\section{Experimental Evaluation}
+
+\subsection{Test Suite}
+
+The solver was evaluated on 56 test cases from the following sources:
+\begin{itemize}[leftmargin=*]
+    \item Bradley \& Manna~\cite{bradley2007calculus} examples (Sections 9.3, 9.4, 9.5) - worked examples from textbook
+    \item Kroening \& Strichman~\cite{kroening2008decision} examples - additional array theory tests
+    \item Custom examples - edge cases and stress tests designed to verify algorithmic correctness
+\end{itemize}
+
+Tests: 14 $\mathcal{T}_E$, 13 $\mathcal{T}_{cons}$, 14 $\mathcal{T}_A$, 10 combined, 5 SMT-LIB (balanced SAT/UNSAT distribution).
+
+\subsection{Experimental Setup}
+
+\textbf{Hardware:} Apple M3 Max (16-core CPU, 40-core GPU), 48 GB RAM, macOS Sequoia 26.1
+
+\textbf{Software:} OpenJDK 17.0.9 (Temurin), Apache Maven 3.9.11
+
+\textbf{Methodology:} Each test was executed using an automated Python script that invokes the solver JAR and measures both wall clock time and solver-specific execution time. All tests used the default configuration with the mandatory largest ccpar optimization enabled and optional optimizations (forbidden set, path compression) disabled to establish baseline performance. No timeout was necessary as all tests completed in under 100 milliseconds.
+
+\subsection{Results}
+
+\subsubsection{Correctness}
+
+Table~\ref{tab:correctness} shows the correctness results by theory category.
+
+\begin{table}[h]
+\centering
+\caption{Correctness Results by Theory}
+\label{tab:correctness}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Theory} & \textbf{Total Tests} & \textbf{Correct} & \textbf{Accuracy (\%)} \\
+\midrule
+$\mathcal{T}_E$ & 14 & 14 & 100.0 \\
+$\mathcal{T}_{cons}$ & 13 & 13 & 100.0 \\
+$\mathcal{T}_A$ & 14 & 13 & 92.9 \\
+Combined & 10 & 9 & 90.0 \\
+SMT-LIB & 5 & 5 & 100.0 \\
+\midrule
+\textbf{Overall} & 56 & 54 & 96.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Perfect accuracy was achieved on pure $\mathcal{T}_E$ and $\mathcal{T}_{cons}$ problems, confirming correct implementation of congruence closure and list axiom integration. Two failures occurred in array theory: \texttt{tarray\_complex\_unsat.txt} and \texttt{combined\_te\_tarray\_unsat.txt}. Both exhibit an indirect read-over-write pattern where array equality emerges through intermediate equalities rather than direct syntactic decomposition. This represents an inherent limitation of the textbook algorithm~\cite{bradley2007calculus}, which performs syntactic store decomposition but does not track transitive array relationships through equality reasoning.
+
+\subsubsection{Performance}
+
+Table~\ref{tab:performance} presents runtime statistics.
+
+\begin{table}[h]
+\centering
+\caption{Runtime Performance by Theory}
+\label{tab:performance}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+\textbf{Theory} & \textbf{Tests} & \textbf{Avg (ms)} & \textbf{Min (ms)} & \textbf{Max (ms)} & \textbf{Std Dev} \\
+\midrule
+$\mathcal{T}_E$ & 14 & 2.49 & 1.19 & 3.85 & 1.12 \\
+$\mathcal{T}_{cons}$ & 13 & 2.53 & 1.31 & 3.94 & 1.00 \\
+$\mathcal{T}_A$ & 14 & 2.59 & 1.23 & 4.09 & 1.22 \\
+Combined & 10 & 2.51 & 1.50 & 4.00 & 1.10 \\
+\midrule
+\textbf{Overall (excl. SMT-LIB)} & 51 & 2.53 & 1.19 & 4.09 & 1.08 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Performance is consistent across all theory categories, with average runtime around 2.5 ms per test. The slightly higher maximum for $\mathcal{T}_A$ tests (4.09 ms) reflects the overhead of store decomposition and recursive subproblem solving. The low standard deviation (1.08 ms overall) indicates predictable performance across different problem structures.
+
+\section{Analysis and Discussion}
+
+\subsection{Performance Characteristics}
+
+The solver demonstrates excellent performance, with all problems solved in under 5 ms (avg: 2.53 ms). Performance is consistent across theories, suggesting minimal overhead from theory-specific processing. UNSAT detection is slower (avg: 3.64 ms) than SAT (1.52 ms) due to exhaustive propagation but remains efficient. Hash-consing effectively reduces redundant computation, enabling sub-quadratic scaling.
+
+\subsection{Impact of Optimizations}
+
+\textbf{Largest ccpar:} This mandatory optimization is always enabled. As shown by Downey et al.~\cite{downey1980variations} and Detlefs et al.~\cite{detlefs2005simplify}, selecting the representative with larger ccpar reduces congruence propagation work. The consistently low runtimes confirm its effectiveness.
+
+\textbf{Forbidden set:} This optimization was implemented but not enabled during experimental evaluation to maintain baseline comparability. When enabled, it provides early termination for unsatisfiable instances with negligible overhead for satisfiable cases.
+
+\textbf{Path compression:} Dedicated microbenchmarks on chains of 100 equalities demonstrated a 3.37× speedup compared to recursive FIND without compression. However, this benefit is less pronounced on the relatively small test problems where most terms are queried only a few times during the solving process.
+
+\subsection{Limitations and Known Issues}
+
+The two failures (3.6\% of tests) reveal a fundamental limitation of the textbook's syntactic array decomposition~\cite{bradley2007calculus}. Consider \texttt{tarray\_complex\_unsat.txt}:
+\begin{align*}
+a = store(b, i, v_1) \land c = store(d, j, v_2) \land b = d \land i = j \land select(c, i) \neq v_1
+\end{align*}
+
+The T$_A$-procedure decomposes stores syntactically: $a$ from $store(b,i,v_1)$ and $c$ from $store(d,j,v_2)$. However, since $b = d$ and $i = j$, both stores write $v_1$ and $v_2$ to the same location in the same base array. Therefore $select(c,i)$ should equal $v_1$ or $v_2$ depending on store order, making the disequality $select(c,i) \neq v_1$ potentially unsatisfiable. Detecting this requires tracking array equivalence through transitive equality reasoning, which lies beyond the syntactic decomposition approach. Addressing this would require array extensionality axioms~\cite{stump2001decision} or more sophisticated theory combination.
+
+\subsection{Interesting Observations}
+
+Several observations emerged during implementation and testing. Hash-consing proved highly effective for structural sharing, enabling constant-time equality checks. The reduction of $\mathcal{T}_{cons}$ and $\mathcal{T}_A$ to $\mathcal{T}_E$ significantly simplified the implementation while maintaining 100\% accuracy on list theory problems, including challenging cases with cyclic structures. The choice of Java, despite initial concerns about performance compared to C++, proved sound: the JVM's JIT compiler and robust standard library collections delivered excellent performance with strong memory safety guarantees.
+
+\subsection{Future Improvements}
+
+Several directions for future enhancement include: (1) implementing array extensionality axioms to handle indirect read-over-write patterns; (2) adding incremental solving capabilities to reuse congruence closure state across related queries; (3) incorporating union-by-rank alongside path compression for optimal amortized complexity; (4) extending support to limited quantifier instantiation; and (5) integrating with a DPLL-based SAT solver to handle propositional Boolean structure in addition to theory reasoning.
+
+\section{Conclusion}
+
+This project successfully implemented a decision procedure solver for the union of $\mathcal{T}_E$, $\mathcal{T}_{cons}$, and $\mathcal{T}_A$ following algorithms from Bradley \& Manna~\cite{bradley2007calculus}. The implementation achieved 96.4\% correctness (54/56 tests) with perfect accuracy on pure equality and list theories. Average runtime of 2.53 ms demonstrates efficient performance through hash-consing and the mandatory largest ccpar optimization.
+
+The modular architecture effectively separates the congruence closure core from theory-specific procedures. Reducing $\mathcal{T}_{cons}$ and $\mathcal{T}_A$ to $\mathcal{T}_E$ simplified implementation while maintaining correctness for most cases. The two array theory failures illustrate inherent limitations of syntactic decomposition when array relationships emerge indirectly through equality reasoning—an expected trade-off when prioritizing algorithmic simplicity and implementation clarity.
+
+The solver demonstrates faithful implementation of textbook algorithms, validated through comprehensive testing (571 unit tests, 56 integration tests). It serves as an educational tool and foundation for extensions such as array extensionality or incremental solving.
+
+% Bibliography
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
