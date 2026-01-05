@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/djacoo/equality-lists-arrays-solver/tree/main/docs
+    about: Read the comprehensive documentation
+  - name: 🎓 Course Materials
+    url: https://github.com/djacoo/equality-lists-arrays-solver/tree/main/assignment
+    about: View the original assignment document
+  - name: 🧪 Test Suite
+    url: https://github.com/djacoo/equality-lists-arrays-solver/tree/main/tests
+    about: Browse 56 integration tests with examples
+  - name: 📝 Report
+    url: https://github.com/djacoo/equality-lists-arrays-solver/releases/tag/v3.0.0
+    about: Read the 6-page technical report (PDF)

@@ -1,0 +1,48 @@
+name: CI Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [ '17', '21' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Build with Maven
+      run: mvn clean compile -B
+
+    - name: Run tests
+      run: mvn test -B
+
+    - name: Package JAR
+      run: mvn package -DskipTests -B
+
+    - name: Upload JAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: solver-jar-java${{ matrix.java }}
+        path: target/*.jar
+        retention-days: 30
+
+    - name: Test JAR execution
+      run: |
+        java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar --help
+        echo "a = b" | java -jar target/equality-lists-arrays-solver-1.0-SNAPSHOT-standalone.jar

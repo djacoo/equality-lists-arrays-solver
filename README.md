@@ -1,9 +1,18 @@
 # Satisfiability Solver for the Union of Theories T_E, T_cons, and T_A
 
+[![CI Build](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/djacoo/equality-lists-arrays-solver)](https://github.com/djacoo/equality-lists-arrays-solver/releases/latest)
+[![Java](https://img.shields.io/badge/Java-17%2B-blue)](https://adoptium.net/)
+[![Maven](https://img.shields.io/badge/Maven-3.6%2B-C71A36)](https://maven.apache.org/)
+[![Tests](https://img.shields.io/badge/tests-571%20passing-success)](https://github.com/djacoo/equality-lists-arrays-solver/actions)
+[![License](https://img.shields.io/badge/License-Academic-orange)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Complete-brightgreen)]()
+
 **Author:** Jacopo Parretti (VR536104)
 **Course:** Planning and Automated Reasoning, Academic Year 2025-26
 **Implementation Language:** Java 17
 **Assignment Deadline:** January 31, 2026
+**Project Status:** ✅ Complete and Ready for Submission
 
 ## Abstract
 
