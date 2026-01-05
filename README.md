@@ -1,7 +1,7 @@
 # Satisfiability Solver for the Union of Theories T_E, T_cons, and T_A
 
-[![CI Build](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml/badge.svg)](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/djacoo/equality-lists-arrays-solver)](https://github.com/djacoo/equality-lists-arrays-solver/releases/latest)
+[![CI Build](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/djacoo/equality-lists-arrays-solver?include_prereleases)](https://github.com/djacoo/equality-lists-arrays-solver/releases)
 [![Java](https://img.shields.io/badge/Java-17%2B-blue)](https://adoptium.net/)
 [![Maven](https://img.shields.io/badge/Maven-3.6%2B-C71A36)](https://maven.apache.org/)
 [![Tests](https://img.shields.io/badge/tests-571%20passing-success)](https://github.com/djacoo/equality-lists-arrays-solver/actions)

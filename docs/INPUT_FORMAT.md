@@ -1,18 +1,29 @@
 # Input Format Specification
 
-This document defines the input format for the equality-lists-arrays-solver.
-
----
+**Project:** Decision Procedure Solver for T_E ∪ T_cons ∪ T_A
+**Version:** 3.0.0 (Production)
+**Last Updated:** January 2026
 
 ## Overview
 
-The solver accepts a set (conjunction) of literals representing constraints in the union of three theories:
-- **T_E**: Theory of Equality with uninterpreted functions
-- **T_cons**: Theory of Lists (cons, car, cdr)
-- **T_A**: Theory of Arrays (select, store)
+This document specifies the input formats accepted by the solver. The solver supports two formats:
 
-**Input:** Text file or stdin containing literals
-**Output:** SAT or UNSAT
+1. **Custom Format**: Human-readable text format (recommended for manual testing)
+2. **SMT-LIB 2.0**: Standard format for compatibility with benchmarks (QF_UF logic)
+
+Both formats accept conjunctions of literals representing constraints in the union of three theories:
+- **T_E**: Theory of Equality with uninterpreted functions
+- **T_cons**: Theory of Non-empty Possibly Cyclic Lists
+- **T_A**: Theory of Arrays without Extensionality
+
+**Input Methods:**
+- Text file (command-line argument)
+- Standard input (stdin)
+- Pipe or redirection
+
+**Output:**
+- SAT (with optional model/equivalence classes)
+- UNSAT (with optional conflict explanation)
 
 ---
 
