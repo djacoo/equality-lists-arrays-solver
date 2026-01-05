@@ -36,7 +36,7 @@ jobs:
       run: mvn package -DskipTests -B
 
     - name: Upload JAR artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: solver-jar-java${{ matrix.java }}
         path: target/*.jar
