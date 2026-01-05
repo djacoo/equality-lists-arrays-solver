@@ -1,18 +1,15 @@
-# Satisfiability Solver for the Union of Theories T_E, T_cons, and T_A
+# Decision Procedure Solver for the Union of Theories T_E, T_cons, and T_A
 
 [![CI Build](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/djacoo/equality-lists-arrays-solver/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/djacoo/equality-lists-arrays-solver)](https://github.com/djacoo/equality-lists-arrays-solver/releases)
 [![Java](https://img.shields.io/badge/Java-17%2B-blue)](https://adoptium.net/)
 [![Maven](https://img.shields.io/badge/Maven-3.6%2B-C71A36)](https://maven.apache.org/)
 [![Tests](https://img.shields.io/badge/tests-571%20passing-success)](https://github.com/djacoo/equality-lists-arrays-solver/actions)
 [![License](https://img.shields.io/badge/License-Academic-orange)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Complete-brightgreen)]()
+[![Code Quality](https://img.shields.io/badge/code%20coverage-comprehensive-brightgreen)](https://github.com/djacoo/equality-lists-arrays-solver/tree/main/src/test)
 
-**Author:** Jacopo Parretti (VR536104)
-**Course:** Planning and Automated Reasoning, Academic Year 2025-26
-**Implementation Language:** Java 17
-**Assignment Deadline:** January 31, 2026
-**Project Status:** ✅ Complete and Ready for Submission
+Jacopo Parretti (VR536104)
+University of Verona
+Planning and Automated Reasoning, Academic Year 2025-26
 
 ## Abstract
 
@@ -326,8 +323,7 @@ equality-lists-arrays-solver/
 │   └── TEST_INDEX.md              # Complete test catalog with sources
 ├── docs/                          # Technical documentation
 │   ├── ARCHITECTURE.md            # System architecture and design
-│   ├── INPUT_FORMAT.md            # Complete input format specification
-│   └── PROJECT_PLAN.md            # Development phases and timeline
+│   └── INPUT_FORMAT.md            # Complete input format specification
 ├── experiments/                   # Performance analysis
 │   ├── run_experiments.py         # Automated test execution
 │   ├── analyze_results.py         # Performance analysis
@@ -335,8 +331,8 @@ equality-lists-arrays-solver/
 ├── bin/                           # Compiled executable
 │   └── solver.jar                 # Standalone JAR (copy of target/...jar)
 ├── output/                        # Directory for generated outputs
-└── report/                        # Written report (separate submission)
-    ├── report.pdf                 # Final report (max 6 pages)
+└── report/                        # Technical report
+    ├── report.pdf                 # Project report
     └── report.tex                 # LaTeX source
 ```
 
@@ -371,7 +367,6 @@ Comprehensive technical documentation is available in the [docs/](docs/) directo
 
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture, component interactions, and design decisions
 - **[INPUT_FORMAT.md](docs/INPUT_FORMAT.md)** - Complete input format specification with formal grammar
-- **[PROJECT_PLAN.md](docs/PROJECT_PLAN.md)** - Development phases, timeline, and completion status
 - **[tests/TEST_INDEX.md](tests/TEST_INDEX.md)** - Complete catalog of all 56 integration tests with source attributions
 
 ## Troubleshooting
@@ -414,11 +409,4 @@ This project is an academic assignment for the Planning and Automated Reasoning 
 
 Jacopo Parretti (VR536104)
 University of Verona
-Planning and Automated Reasoning - Academic Year 2025-26
-
----
-
-**Project Status:** Complete
-**Implementation:** Faithful to Bradley & Manna (2007)
-**Test Results:** 571/571 JUnit tests passing, 56/56 integration tests passing
-**Optimizations:** Largest ccpar (mandatory), forbidden set, path compression
+Planning and Automated Reasoning, Academic Year 2025-26
