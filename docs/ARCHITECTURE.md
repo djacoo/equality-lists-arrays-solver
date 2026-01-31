@@ -236,7 +236,6 @@ Algorithm: MainSolver.solve(Set<Literal> literals)
 - Allow comments with `#` or `//` in custom format
 - Support multiple literals per line or one per line
 - See [INPUT_FORMAT.md](INPUT_FORMAT.md) for custom format specification
-- See [SMTLIB_PARSER.md](SMTLIB_PARSER.md) for SMT-LIB format details
 
 ---
 
@@ -371,7 +370,5 @@ Each component will have its own test suite:
 6. **T_A Tests**: Array examples with select/store
 7. **Integration Tests**: Mixed theory examples
 8. **Parser Tests**: Valid/invalid inputs
-
----
 
 ---
