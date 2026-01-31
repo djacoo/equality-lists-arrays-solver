@@ -1,9 +1,5 @@
 # Input Format Specification
 
-**Project:** Decision Procedure Solver for T_E ∪ T_cons ∪ T_A
-**Version:** 3.0.0 (Production)
-**Last Updated:** January 2026
-
 ## Overview
 
 This document specifies the input formats accepted by the solver. The solver supports two formats:
