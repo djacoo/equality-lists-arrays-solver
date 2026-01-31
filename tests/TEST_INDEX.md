@@ -214,11 +214,3 @@ mvn test
 ```
 
 ---
-
-## Notes for Report
-
-- All test cases are drawn from or inspired by the referenced textbooks
-- Tests cover all three theories individually and in combination
-- Tests include both satisfiable and unsatisfiable cases for each category
-- Special attention to axiom violations and edge cases
-- Combined theory tests validate the integration of the unified solver
